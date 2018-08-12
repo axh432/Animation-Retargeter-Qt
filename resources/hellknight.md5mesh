@@ -1,0 +1,39 @@
+MD5Version 10
+commandline "mesh models/monsters/hellknight/cycles/hellknight_mesh.mb -dest models/md5/monsters/hellknight/hellknight.md5mesh -game Doom -prefix HK2_ -keep lknee1 rknee1 SPINNER rmissile lmissile target forehead1 -parent rmissile rhand -parent lmissile lhand -parent waist SPINNER -parent SPINNER body2 -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw -prefix HK_"
+
+numJoints 110
+numMeshes 4
+
+joints {
+	"origin"	-1 ( 0 0 0 ) ( -0.7071067095 0 0 )		// 
+}
+
+mesh {
+	// meshes: hellknightmesh
+	shader "models/monsters/hellknight/hellknight"
+
+        numverts 10
+	vert 0 ( 0.0306090005 0.6130819917 ) 0 2
+
+        numtris 10
+	tri 0 2 1 0
+
+        numweights 10
+	weight 0 5 0.7900747061 ( 1.9485528469 7.4760251045 23.7117900848 )
+
+}
+
+mesh {
+	// meshes: salivamesh
+	shader "models/monsters/hellknight/gob2"
+
+	numverts 14
+	vert 0 ( 0.6911731958 0.0044568777 ) 5 1
+
+	numtris 12
+	tri 0 2 1 0
+
+	numweights 22
+	weight 0 42 0.883179605 ( 2.3967983723 0.3203794658 -2.0581412315 )
+
+}

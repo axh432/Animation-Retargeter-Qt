@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>vshader.glsl</file>
+        <file>fshader.glsl</file>
+	<file>shaders/vshader.glsl</file>
+        <file>shaders/fshader.glsl</file>
+	<file>imp.mtr</file>
+	<file>imp.md5mesh</file>
+	<file>hellknight.md5mesh</file>
+	<file>hellknight.mtr</file>
+	<file>evade_left.md5anim</file>
+	<file>md5mesh.schema</file>
+	<file>mtr.schema</file>
+	<file>md5anim.schema</file>
+    </qresource>
+</RCC>

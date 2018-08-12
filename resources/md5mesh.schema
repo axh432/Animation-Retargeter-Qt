@@ -1,0 +1,28 @@
+define_ignore_lines
+commandline
+//
+end_ignore_lines
+
+MD5Version int
+
+numJoints int
+numMeshes int
+
+joints {
+	repeat_section	quoted_string	int ( float float float ) ( float float float ) end_section
+	}
+
+repeat_section mesh {
+
+	shader quoted_string
+
+	numverts int
+	repeat_section vert int ( float float ) int int	end_section
+
+	numtris int
+	repeat_section tri int int int int end_section
+
+	numweights int
+        repeat_section  weight int int float ( float float float ) end_section
+	
+} end_section

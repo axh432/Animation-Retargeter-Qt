@@ -1,0 +1,63 @@
+"models/monsters/hellknight/tongue"
+{
+    	alias				"none"
+    
+    	type				"flesh"
+    
+    	vertshader			"./shaders/tongue.vert"
+	fragshader			"./shaders/tongue.frag"
+    
+	diffusemap	    		"./textures/tongue.tga"
+	localmap			"./textures/tongue_local.tga" 
+	heightmap			"./textures/tongue_h.tga"
+	specularmap			"./textures/tongue_s.tga"
+}
+
+"models/monsters/hellknight/gob2"
+{
+	alias			"none"
+	
+	type			"flesh"
+	
+	vertshader		"./shaders/gob2.vert"
+	fragshader		"./shaders/gob2.frag"
+	     		
+ 	diffusemap		"none"
+ 	localmap		"none"
+ 	heightmap		"./textures/gob2_h.tga" 
+	specularmap		"./textures/gob2_s.tga"
+
+}
+
+"models/monsters/hellknight/gob"
+{
+	alias			"none"
+	
+	type			"flesh"
+	
+        // make this shader scroll
+	vertshader		"./shaders/gob.vert"
+	fragshader		"./shaders/gob.frag"
+	
+	diffusemap		"none"
+	localmap		"none"
+	heightmap		"./textures/gob_h.tga"
+	specularmap		"./textures/gob_s.tga"
+
+}
+
+"models/monsters/hellknight/hellknight"
+{
+    	alias			"none"
+    
+    	type			"flesh"
+    
+    	vertshader		"./shaders/hellknight.vert"
+	fragshader		"./shaders/hellknight.frag"
+
+	diffusemap	    	"./textures/hellknight.tga"
+	localmap		"./textures/hellknight_local.tga"
+	heightmap		"./textures/hellknight_h.tga"
+	specularmap		"./textures/hellknight_s.tga"
+
+}

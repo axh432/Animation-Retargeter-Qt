@@ -1,0 +1,20 @@
+define_ignore_lines
+//
+end_ignore_lines
+
+repeat_section 
+quoted_string
+{
+	alias				quoted_string
+    
+        type				quoted_string
+    
+        vertshader			quoted_string
+	fragshader			quoted_string
+    
+        diffusemap                      quoted_string
+	localmap			quoted_string 
+	heightmap			quoted_string
+	specularmap			quoted_string
+} 
+end_section

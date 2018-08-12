@@ -1,0 +1,29 @@
+define_ignore_lines
+commandline
+//
+end_ignore_lines
+
+MD5Version int
+
+numFrames int
+numJoints int
+frameRate int
+numAnimatedComponents int
+
+hierarchy {
+	repeat_section quoted_string int int int end_section
+}
+
+bounds {
+	repeat_section ( float float float ) ( float float float ) end_section
+}
+
+baseframe {
+	repeat_section ( float float float ) ( float float float ) end_section
+}
+
+repeat_section frame int {
+	 repeat_section float end_section
+} end_section
+
+
