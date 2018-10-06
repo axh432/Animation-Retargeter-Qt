@@ -13,8 +13,8 @@ class Md5Factory
 {
 public:
     Md5Factory();
-    unique_ptr<Model> buildModel(DataBuffer* buffer);
-    unique_ptr<Anim>  buildAnim(DataBuffer* buffer);
+    void buildModel(DataBuffer* buffer, QString name, std::vector<Model>& store);
+    void buildAnim(DataBuffer* buffer, QString name, std::vector<Anim>& store);
 
 private:
     unique_ptr<Md5ModelFactory> modelFactory;

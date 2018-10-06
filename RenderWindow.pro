@@ -29,7 +29,9 @@ SOURCES += \
         lib/md5/skeleton.cpp \
     engine/camera.cpp \
     engine/entity.cpp \
-    engine/material.cpp
+    engine/material.cpp \
+    engine/resourcemanager.cpp \
+    lib/md5/glmesh.cpp
 
 
 HEADERS += \
@@ -46,7 +48,9 @@ HEADERS += \
         lib/md5/quaternioncreator.h \
     engine/camera.h \
     engine/entity.h \
-    engine/material.h
+    engine/material.h \
+    engine/resourcemanager.h \
+    lib/md5/glmesh.h
 
 
 RESOURCES += \

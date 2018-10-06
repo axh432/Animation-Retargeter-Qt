@@ -32,12 +32,14 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initializeGL()
 {
+    qDebug() << "InitializeGL() called";
     initializeOpenGLFunctions();
     engine.reset(new Engine());
 }
 
 void GLWidget::updateWorld(qint64 delta){
     makeCurrent();
+    qDebug() << "updateWorld() called";
     engine->updateWorld(delta);
     doneCurrent();
 }
@@ -48,6 +50,7 @@ void GLWidget::handleKeyEvent(QKeyEvent *e){
 
 void GLWidget::paintGL()
 {
+    qDebug() << "paintGL() called";
     engine->render();
 }
 

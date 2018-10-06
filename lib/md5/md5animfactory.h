@@ -12,7 +12,7 @@ using std::unique_ptr;
 class Md5AnimFactory
 {
 public:
-    unique_ptr<Anim> buildAnim(DataBuffer* buffer);
+    void buildAnim(DataBuffer* buffer, QString name, std::vector<Anim>& store);
 
     vector<Skeleton> buildFrameSkeletons(vector<JointInfo>& hierarchy,
                                         vector<Joint>& baseFrame,

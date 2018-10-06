@@ -80,7 +80,7 @@ void MainWindow::run(){
 
     //renderloop
     qDebug("Entering RenderLoop");
-    while(running){
+   while(running){
         timer->restart();
 
         app->processEvents();
@@ -92,7 +92,7 @@ void MainWindow::run(){
         //delay if we still have time to spare
         //qint64 delay = MILLISECONDS_PER_FRAME - timer->elapsed();
         //QThread::msleep(delay > 0? delay : 0);
-    }
+   }
 
 }
 

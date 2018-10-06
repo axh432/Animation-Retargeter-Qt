@@ -11,12 +11,12 @@ using std::unique_ptr;
 
 Md5Factory::Md5Factory(): modelFactory(new Md5ModelFactory()), animFactory(new Md5AnimFactory()){ /*empty*/ }
 
-unique_ptr<Model> Md5Factory::buildModel(DataBuffer * buffer){
+void Md5Factory::buildModel(DataBuffer * buffer, QString name, std::vector<Model>& store){
 
-    return modelFactory->buildModel(buffer);
+    modelFactory->buildModel(buffer, name, store);
 }
 
-unique_ptr<Anim> Md5Factory::buildAnim(DataBuffer * buffer){
+void Md5Factory::buildAnim(DataBuffer * buffer, QString name, std::vector<Anim>& store){
 
-    return animFactory->buildAnim(buffer);
+    animFactory->buildAnim(buffer, name, store);
 }

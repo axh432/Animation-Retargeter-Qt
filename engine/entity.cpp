@@ -1,17 +1,20 @@
 #include "entity.h"
 
-Entity::Entity(unique_ptr<Model> modelRef, unique_ptr<Anim> animRef):
+Entity::Entity(unique_ptr<GLModel> modelRef, Anim* animRef, QMatrix4x4 matrix):
     millisecondsPast(0.0f),
     interpolation(0.0f),
     currentFrame(0),
     nextFrame(0),
     model(std::move(modelRef)),
-    anim(std::move(animRef))
+    anim(animRef),
+    positionOrientation(matrix)
 {
-
+    this->getModel();
 }
 
 void Entity::update(double delta){
+
+    this->getModel();
 
     int numFrames = anim->skeletons.size() - 1;
     double millisecsPerFrame = anim->header->millisecondsPerFrame;
@@ -30,6 +33,7 @@ void Entity::update(double delta){
 
     findInterpolationValue(millisecsPerFrame, millisecondsPast);
 
+    computeOpenGLVerts();
 }
 
 void Entity::findInterpolationValue(double millisecsPerFrame, double millisecondsPast){
@@ -50,16 +54,12 @@ void Entity::findInterpolationValue(double millisecsPerFrame, double millisecond
     qDebug() << "interpolation value: " << interpolation;
 }
 
-vector<float> Entity::computeOpenGLVerts(){
+void Entity::computeOpenGLVerts(){
 
     unique_ptr<Skeleton> skeleton  = Skeleton::interpolateSkeletons(anim->skeletons[currentFrame],
                                                                     anim->skeletons[nextFrame],
                                                                     interpolation);
-    //Skeleton* skeleton = &anim->skeletons[currentFrame];
-
-    return model->meshes[0].computeGLVertices(skeleton.get());
-
-   // return model->meshes[0].computeGLVertices(skeleton);
+    model->update(skeleton.get());
 }
 
 void Entity::calculateNextFrame(int numFrames){

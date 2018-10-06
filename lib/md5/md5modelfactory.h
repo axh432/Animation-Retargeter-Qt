@@ -14,7 +14,7 @@ using std::unique_ptr;
 class Md5ModelFactory
 {
 public:
-    unique_ptr<Model> buildModel(DataBuffer* buffer);
+    void buildModel(DataBuffer* buffer, QString name, std::vector<Model>& store);
 
 private:
     unique_ptr<ModelHeader> buildHeader(DataBuffer* buffer);

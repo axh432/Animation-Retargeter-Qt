@@ -7,10 +7,41 @@
 #include <iostream>
 
 
+Mesh::Mesh(
+    QString newMaterialName,
+    vector<float>   newTextureCoords,
+    vector<Vert>    newVerts,
+    vector<GLuint>  newTris,
+    vector<Weight>  newWeights
+     ):
+    materialName(newMaterialName),
+    textureCoords(std::move(newTextureCoords)),
+    verts(std::move(newVerts)),
+    tris(std::move(newTris)),
+    weights(std::move(newWeights)){
+
+    this->glData.indices.create();
+    this->glData.textureCoords.create();
+
+    this->glData.textureCoords.bind();
+    this->glData.textureCoords.allocate(textureCoords.data(), textureCoords.size() * sizeof(float));
+
+    this->glData.indices.bind();
+    this->glData.indices.allocate(tris.data(), tris.size() * sizeof(GLuint));
+
+}
+
+Mesh::~Mesh(){
+    this->glData.indices.destroy();
+    this->glData.textureCoords.destroy();
+}
+
 vector<float> Mesh::computeGLVertices(Skeleton* skeleton){
 
     vector<float> glvertices;
     vector<Joint>& joints = skeleton->getJoints();
+
+    this->getWeights();
 
     Joint& joint = joints[0];
     QQuaternion& orient = joint.objectOrient;
@@ -18,10 +49,17 @@ vector<float> Mesh::computeGLVertices(Skeleton* skeleton){
     Vert& vert = verts[0];
     Weight& weight = weights[0];
 
+    if(weights.empty()){
+        std::cout << "weights are empty!" << std::endl;
+    }
 
-    //std::cout << "Vert " << vert.index << vert.weightCount << vert.startWeight << std::endl;
-    //std::cout << "Weight " << weight.index << weight.bias << weight.joint << std::endl;
-    //std::cout << "Joint " << orient.x() << orient.y() << orient.z() << std::endl;
+    if(verts.empty()){
+        std::cout << "verts are empty!" << std::endl;
+    }
+
+    /*std::cout << "Vert " << vert.index << vert.weightCount << vert.startWeight << std::endl;
+    std::cout << "Weight " << weight.index << weight.bias << weight.joint << std::endl;
+    std::cout << "Joint " << orient.x() << orient.y() << orient.z() << std::endl; */
 
     for(int vertIndex = 0; vertIndex < verts.size(); vertIndex++){
 

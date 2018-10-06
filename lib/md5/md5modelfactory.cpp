@@ -10,7 +10,7 @@
 using std::vector;
 using std::unique_ptr;
 
-unique_ptr<Model> Md5ModelFactory::buildModel(DataBuffer * buffer){
+void Md5ModelFactory::buildModel(DataBuffer * buffer, QString name, std::vector<Model>& store){
 
     qDebug() << "Building Model header";
     unique_ptr<ModelHeader> header = buildHeader(buffer);
@@ -27,9 +27,7 @@ unique_ptr<Model> Md5ModelFactory::buildModel(DataBuffer * buffer){
     qDebug() << "Creating the model";
     unique_ptr<Skeleton> skeleton(new Skeleton(joints));
 
-    unique_ptr<Model> model(new Model(std::move(header), std::move(meshes), std::move(skeleton)));
-
-    return std::move(model);
+    store.emplace_back(name, std::move(header), std::move(meshes), std::move(skeleton));
 }
 
 unique_ptr<ModelHeader> Md5ModelFactory::buildHeader(DataBuffer* buffer){
@@ -110,7 +108,7 @@ void Md5ModelFactory::buildMesh(DataBuffer* buffer, vector<Mesh>& meshes){
     qDebug() << "building weights";
     buildWeights(buffer, weights);
 
-    meshes.emplace_back(materialName, textureCoords, verts, tris, weights);
+    meshes.emplace_back(materialName, std::move(textureCoords), std::move(verts), std::move(tris), std::move(weights));
 }
 
 void Md5ModelFactory::buildVerts(DataBuffer* buffer, vector<Vert>& verts, vector<float>& textureCoords){

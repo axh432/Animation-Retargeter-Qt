@@ -3,27 +3,31 @@
 
 #include "lib/md5/md5.h"
 #include <memory>
+#include <QMatrix4x4>
 
 
 class Entity
 {
 private:
-    unique_ptr<Model> model;
-    unique_ptr<Anim> anim;
+    unique_ptr<GLModel> model;
+    Anim* anim;
     double millisecondsPast;
     double interpolation;
     int currentFrame;
     int nextFrame;
+    QMatrix4x4 positionOrientation;
 
     void calculateNextFrame(int numFrames);
+    void computeOpenGLVerts();
+    void findInterpolationValue(double millisecsPerFrame, double millisecondsPast);
 
 public:
-    Entity(unique_ptr<Model> model, unique_ptr<Anim> anim);
+    Entity(unique_ptr<GLModel> model, Anim* anim, QMatrix4x4 matrix);
 
     void update(double delta);
-    vector<float> computeOpenGLVerts();
-    void findInterpolationValue(double millisecsPerFrame, double millisecondsPast);
-    inline Model* getModel(){ return model.get(); }
+    inline GLModel* getModel(){ return model.get(); }
+    inline void setPositionOrientation(QMatrix4x4 posOrient){ this->positionOrientation = posOrient; }
+    inline QMatrix4x4 getPositionOrientation(){ return positionOrientation; }
 };
 
 #endif // ENTITY_H

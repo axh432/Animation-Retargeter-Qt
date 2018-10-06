@@ -7,7 +7,7 @@
 
 using std::unique_ptr;
 
-unique_ptr<Anim> Md5AnimFactory::buildAnim(DataBuffer* buffer){
+void Md5AnimFactory::buildAnim(DataBuffer* buffer, QString name, std::vector<Anim>& store){
 
     qDebug() << "Building Anim header";
     unique_ptr<AnimHeader> header = buildHeader(buffer);
@@ -31,9 +31,7 @@ unique_ptr<Anim> Md5AnimFactory::buildAnim(DataBuffer* buffer){
     vector<Skeleton> frameSkeletons = buildFrameSkeletons(hierarchy, baseFrame, frames, headerRef);
 
     qDebug() << "Creating Anim";
-    unique_ptr<Anim> anim(new Anim(std::move(header), std::move(frameSkeletons), std::move(bounds)));
-
-    return std::move(anim);
+    store.emplace_back(name, std::move(header), std::move(frameSkeletons), std::move(bounds));
 
 }
 

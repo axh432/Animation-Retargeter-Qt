@@ -1,9 +1,12 @@
 #include <QVector3D>
 #include <QQuaternion>
+#include <QOpenGLBuffer>
 #include <QString>
 #include <memory>
 #include <vector>
 #include <qopengl.h>
+
+#include "glmesh.h"
 
 using std::vector;
 using std::unique_ptr;
@@ -91,6 +94,14 @@ private:
     vector<Joint> joints;
 };
 
+struct GLData
+{
+public:
+    GLData(): indices(QOpenGLBuffer::IndexBuffer){}
+    QOpenGLBuffer textureCoords;
+    QOpenGLBuffer indices;
+};
+
 class Mesh {
 public:
     Mesh(
@@ -99,13 +110,9 @@ public:
         vector<Vert>    newVerts,
         vector<GLuint>  newTris,
         vector<Weight>  newWeights
-         ):
-        materialName(newMaterialName),
-        textureCoords(std::move(newTextureCoords)),
-        verts(std::move(newVerts)),
-        tris(std::move(newTris)),
-        weights(std::move(newWeights))
-        { /* Empty */ }
+         );
+
+    ~Mesh();
 
      //TODO: this needs input validation with a static factory method
     inline QString&         getMaterialName(){ return materialName; }
@@ -113,6 +120,7 @@ public:
     inline vector<float>&   getTextureCoords(){ return textureCoords; }
     inline vector<Vert>&    getVerts(){ return verts; }
     inline vector<Weight>&  getWeights(){ return weights; }
+    inline GLData&          getGLData(){ return glData; }
 
     vector<float>   computeGLVertices(Skeleton* skel);
 
@@ -123,8 +131,7 @@ private:
     vector<Weight>  weights;
     vector<float>   textureCoords;
 
-    //QOpenGLBuffer   arrayBuf; //don't know about index or array buffers yet.
-    //QOpenGLBuffer   indexBuf;
+    struct GLData glData;
 };
 
 //Animation
@@ -182,10 +189,11 @@ public:
 
 struct Anim{
 public:
-    Anim(unique_ptr<AnimHeader> newHeader, vector<Skeleton> newSkeletons, vector<Bound> newBounds):
-        header(std::move(newHeader)), skeletons(std::move(newSkeletons)), bounds(newBounds)
+    Anim(QString name, unique_ptr<AnimHeader> newHeader, vector<Skeleton> newSkeletons, vector<Bound> newBounds):
+        name(name), header(std::move(newHeader)), skeletons(std::move(newSkeletons)), bounds(std::move(newBounds))
         {/*empty*/}
 
+    QString name;
     unique_ptr<AnimHeader> header;
     vector<Skeleton> skeletons;
     vector<Bound> bounds;
@@ -193,10 +201,11 @@ public:
 
 struct Model{
 public:
-    Model(unique_ptr<ModelHeader> header, vector<Mesh> newMeshes, unique_ptr<Skeleton> newBindPose):
-        header(std::move(header)), meshes(std::move(newMeshes)), bindPose(std::move(newBindPose))
+    Model(QString name, unique_ptr<ModelHeader> header, vector<Mesh> newMeshes, unique_ptr<Skeleton> newBindPose):
+        name(name), header(std::move(header)), meshes(std::move(newMeshes)), bindPose(std::move(newBindPose))
         {/*empty*/}
 
+    QString name;
     unique_ptr<ModelHeader> header;
     vector<Mesh> meshes;
     unique_ptr<Skeleton> bindPose;

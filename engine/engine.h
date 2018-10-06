@@ -16,6 +16,7 @@
 #include "entity.h"
 #include "material.h"
 #include "lib/TextProcessor/databuffer.h"
+#include "resourcemanager.h"
 
 class GeometryEngine;
 
@@ -35,8 +36,8 @@ private:
     void initTextures();
     void initMaterials();
     void testSimpleModel();
-    unique_ptr<Model> loadModel();
-    unique_ptr<Anim> loadAnim();
+    void loadModel();
+    void loadAnim();
     void updateEntity(double delta);
     void createEntity();
     unique_ptr<QOpenGLShaderProgram> createShaderProgram(QString vertexShaderPath, QString fragmentShaderPath);
@@ -45,6 +46,10 @@ private:
 
 private:
     unique_ptr<Entity> entity;
+    unique_ptr<Entity> entity2;
+    unique_ptr<GLModel> glModel;
+    Anim* anim;
+    unique_ptr<ResourceManager> resourceManager;
 
     QOpenGLShaderProgram program;
     GeometryEngine *geometries;
@@ -52,9 +57,6 @@ private:
 
     QOpenGLTexture *texture;
     QOpenGLTexture *imp;
-
-    QHash<QString, Material*> materials;
-    std::vector<Material> materialStorage;
 
     QMatrix4x4 projection;
 

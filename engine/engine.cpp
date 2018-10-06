@@ -21,9 +21,7 @@ Engine::Engine() :
     angularSpeed(30.0f),
     camera(new Camera(QVector3D(0,0,0)))
 {
-    rotationAxis.setX(1);
-    rotationAxis.setY(0);
-    rotationAxis.setZ(0);
+    resourceManager.reset(new ResourceManager());
     initializeGL();
 }
 
@@ -35,7 +33,6 @@ void Engine::initializeGL()
     initMaterials();
     initTextures();
 
-    
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
 
@@ -49,11 +46,24 @@ void Engine::initializeGL()
 }
 
 void Engine::createEntity(){
-    entity.reset(new Entity(loadModel(), loadAnim()));
-    geometries->initMd5Geometry(entity->getModel());
+    loadModel();
+    loadAnim();
+
+    QMatrix4x4 matrix;
+    matrix.translate(0.0f, -35.0f, -150.0f);
+    matrix.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
+
+    QMatrix4x4 matrix2;
+    matrix2.translate(0.0f, -35.0f, -300.0f);
+    matrix2.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
+
+    entity.reset(new Entity(resourceManager->createGLModel(":/imp.md5mesh"), resourceManager->getAnim(":/evade_left.md5anim"), matrix));
+    entity2.reset(new Entity(resourceManager->createGLModel(":/imp.md5mesh"), resourceManager->getAnim(":/evade_left.md5anim"), matrix2));
+
+    //geometries->initMd5Geometry(entity->getModel());
 }
 
-unique_ptr<Model> Engine::loadModel(){
+void Engine::loadModel(){
     QFile infile(":/imp.md5mesh");
     QFile schemaFile(":/md5mesh.schema");
 
@@ -81,12 +91,15 @@ unique_ptr<Model> Engine::loadModel(){
              << " \n\tFloat Buffer size - " << buffer.getFloatBufferSize()
              << " \n\tString Buffer size - " << buffer.getStringBufferSize();
 
-    unique_ptr<Md5Factory> factory(new Md5Factory());
+    QString name = infile.fileName();
 
-    return factory->buildModel(&buffer);
+    qDebug() << "Model name: " << name;
+
+    resourceManager->storeModel(&buffer, name);
+
 }
 
-unique_ptr<Anim> Engine::loadAnim(){
+void Engine::loadAnim(){
 
     QFile infile(":/evade_left.md5anim");
     QFile schemaFile(":/md5anim.schema");
@@ -115,18 +128,19 @@ unique_ptr<Anim> Engine::loadAnim(){
              << " \n\tFloat Buffer size - " << buffer.getFloatBufferSize()
              << " \n\tString Buffer size - " << buffer.getStringBufferSize();
 
-    unique_ptr<Md5Factory> factory(new Md5Factory());
+    //unique_ptr<Md5Factory> factory(new Md5Factory());
 
-    return factory->buildAnim(&buffer);
+    QString name = infile.fileName();
+
+    qDebug() << "Anim name: " << name;
+
+    resourceManager->storeAnim(&buffer, name);
 }
 
 void Engine::updateEntity(double delta){
 
     entity->update(delta);
-
-    vector<float> verts = entity->computeOpenGLVerts();
-
-    geometries->updateMd5Geometry(verts);
+    entity2->update(delta);
 
 }
 
@@ -293,10 +307,7 @@ void Engine::createMaterial(DataBuffer& buffer){
         specular = std::move(loadTexture(specularPath));
     }
 
-    materialStorage.emplace_back(name, alias, type, std::move(shader), std::move(diffuse), std::move(local), std::move(height), std::move(specular));
-    Material* material = &materialStorage[materialStorage.size() - 1];
-
-    materials.insert(material->getName(), material);
+    resourceManager->storeMaterial(name, alias, type, std::move(shader), std::move(diffuse), std::move(local), std::move(height), std::move(specular));
 }
 
 void Engine::initTextures()
@@ -377,6 +388,8 @@ void Engine::handleKeyEvent(QKeyEvent *e){
 
 Engine::~Engine()
 {
+    entity.reset(nullptr);
+    entity2.reset(nullptr);
     delete texture;
     delete imp;
     delete geometries;
@@ -414,40 +427,24 @@ void Engine::render()
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    texture->bind();
-
-    // Calculate model view transformation
-    QMatrix4x4 matrix;
-    matrix.translate(0.0f, -35.0f, -150.0f);
-    matrix.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
-
-    // Set modelview-projection matrix
-    program.setUniformValue("mvp_matrix", projection * camera->getViewMatrix() * matrix);
-
-    // Use texture unit 0 which contains cube.png
-    program.setUniformValue("texture", 0);
-
-    // Draw cube geometry
-    geometries->drawCubeGeometry(&program);
+    entity->getModel()->render(projection * camera->getViewMatrix() * entity->getPositionOrientation());
+    entity2->getModel()->render(projection * camera->getViewMatrix() * entity2->getPositionOrientation());
 
 
-
-    Mesh& mesh = entity->getModel()->meshes[0];
+    /*Mesh& mesh = entity->getModel()->meshes[0];
 
     QString materialName = mesh.getMaterialName();
 
-    Material* material = materials.find(materialName).value();
+    Material* material = resourceManager->getMaterial(materialName);
 
     material->getDiffuse()->bind();
 
     QOpenGLShaderProgram* impShader = material->getShader();
 
     // Set modelview-projection matrix
-    impShader->setUniformValue("mvp_matrix", projection * camera->getViewMatrix() * matrix);
+    impShader->setUniformValue("mvp_matrix", projection * camera->getViewMatrix() * entity->getPositionOrientation());
 
     impShader->setUniformValue("texture", 0);
 
-    //imp->bind();
-
-    geometries->drawMd5Geometry(impShader);
+    geometries->drawMd5Geometry(impShader);*/
 }
