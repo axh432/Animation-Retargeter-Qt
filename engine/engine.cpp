@@ -39,8 +39,8 @@ void Engine::initializeGL()
 
 void Engine::createEntities(){
     loadMaterial(":/imp.mtr");
-    loadModel(":/imp.md5mesh");
-    loadAnim(":/evade_left.md5anim");
+    loadModel(":/imp.md5mesh", "imp");
+    loadAnim(":/evade_left.md5anim", "evade_left");
 
     QMatrix4x4 matrix;
     matrix.translate(0.0f, -35.0f, -150.0f);
@@ -50,13 +50,14 @@ void Engine::createEntities(){
     matrix2.translate(0.0f, -35.0f, -300.0f);
     matrix2.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
 
-    entity.reset(new Entity(resourceManager->createGLModel(":/imp.md5mesh"), resourceManager->getAnim(":/evade_left.md5anim"), matrix));
-    entity2.reset(new Entity(resourceManager->createGLModel(":/imp.md5mesh"), resourceManager->getAnim(":/evade_left.md5anim"), matrix2));
+    entity.reset(new Entity(resourceManager->createGLModel("imp"), resourceManager->getAnim("evade_left"), matrix));
+    entity2.reset(new Entity(resourceManager->createGLModel("imp"), resourceManager->getAnim("evade_left"), matrix2));
 }
 
-void Engine::loadModel(QString modelPath){
-    QFile infile(modelPath);
-    QFile schemaFile(":/md5mesh.schema");
+void Engine::loadResource(QString resourcePath, QString schemaPath, DataBuffer* buffer){
+
+    QFile infile(resourcePath);
+    QFile schemaFile(schemaPath);
 
     if(!infile.open(QIODevice::ReadOnly | QIODevice::Text)){
         qCritical() << "Unable to open file: " << infile.fileName();
@@ -70,62 +71,41 @@ void Engine::loadModel(QString modelPath){
 
     unique_ptr<QTextStream> in(new QTextStream(&infile));
     unique_ptr<QTextStream> schema(new QTextStream(&schemaFile));
-    DataBuffer buffer;
 
-    unique_ptr<TextProcessor> processor(new TextProcessor(std::move(in), std::move(schema), &buffer));
+    unique_ptr<TextProcessor> processor(new TextProcessor(std::move(in), std::move(schema), buffer));
     qDebug("Created Processor");
 
     processor->parse();
     qDebug("finished parsing");
 
-    qDebug() << "Parse Result: \n\tInt Buffer size - " << buffer.getIntBufferSize()
-             << " \n\tFloat Buffer size - " << buffer.getFloatBufferSize()
-             << " \n\tString Buffer size - " << buffer.getStringBufferSize();
+    qDebug() << "Parse Result: \n\tInt Buffer size - " << buffer->getIntBufferSize()
+             << " \n\tFloat Buffer size - " << buffer->getFloatBufferSize()
+             << " \n\tString Buffer size - " << buffer->getStringBufferSize();
 
-    QString name = infile.fileName();
+}
 
-    qDebug() << "Model name: " << name;
+void Engine::loadModel(QString modelPath, QString name){
+    DataBuffer buffer;
+
+    loadResource(modelPath, ":/md5mesh.schema", &buffer);
 
     resourceManager->storeModel(&buffer, name);
-
 }
 
-void Engine::loadAnim(QString animPath){
-
-    QFile infile(animPath);
-    QFile schemaFile(":/md5anim.schema");
-
-    if(!infile.open(QIODevice::ReadOnly | QIODevice::Text)){
-        qCritical() << "Unable to open file: " << infile.fileName();
-    }
-    qDebug() << "Opened file: " << infile.fileName();
-
-    if(!schemaFile.open(QIODevice::ReadOnly | QIODevice::Text)){
-        qCritical() << "Unable to open file: " << schemaFile.fileName();
-    }
-    qDebug() << "Opened file: " << schemaFile.fileName();
-
-    unique_ptr<QTextStream> in(new QTextStream(&infile));
-    unique_ptr<QTextStream> schema(new QTextStream(&schemaFile));
+void Engine::loadAnim(QString animPath, QString name){
     DataBuffer buffer;
 
-    unique_ptr<TextProcessor> processor(new TextProcessor(std::move(in), std::move(schema), &buffer));
-    qDebug("Created Processor");
-
-    processor->parse();
-    qDebug("finished parsing");
-
-    qDebug() << "Parse Result: \n\tInt Buffer size - " << buffer.getIntBufferSize()
-             << " \n\tFloat Buffer size - " << buffer.getFloatBufferSize()
-             << " \n\tString Buffer size - " << buffer.getStringBufferSize();
-
-    //unique_ptr<Md5Factory> factory(new Md5Factory());
-
-    QString name = infile.fileName();
-
-    qDebug() << "Anim name: " << name;
+    loadResource(animPath, ":/md5anim.schema", &buffer);
 
     resourceManager->storeAnim(&buffer, name);
+}
+
+void Engine::loadMaterial(QString materialPath){
+    DataBuffer buffer;
+
+    loadResource(materialPath, ":/mtr.schema", &buffer);
+
+    resourceManager->storeMaterial(buffer);
 }
 
 void Engine::updateEntities(double delta){
@@ -135,164 +115,47 @@ void Engine::updateEntities(double delta){
 
 }
 
-void Engine::loadMaterial(QString materialName){
-
-    QFile infile(materialName);
-    QFile schemaFile(":/mtr.schema");
-
-    if(!infile.open(QIODevice::ReadOnly | QIODevice::Text)){
-        qCritical() << "Unable to open file: " << infile.fileName();
-    }
-    qDebug() << "Opened file: " << infile.fileName();
-
-    if(!schemaFile.open(QIODevice::ReadOnly | QIODevice::Text)){
-        qCritical() << "Unable to open file: " << schemaFile.fileName();
-    }
-    qDebug() << "Opened file: " << schemaFile.fileName();
-
-    unique_ptr<QTextStream> in(new QTextStream(&infile));
-    unique_ptr<QTextStream> schema(new QTextStream(&schemaFile));
-    DataBuffer buffer;
-
-    unique_ptr<TextProcessor> processor(new TextProcessor(std::move(in), std::move(schema), &buffer));
-    qDebug("Created Processor");
-
-    processor->parse();
-    qDebug("finished parsing");
-
-    createMaterial(buffer);
-
-}
-
-std::unique_ptr<QOpenGLShaderProgram> Engine::createShaderProgram(QString vertexShaderPath, QString fragmentShaderPath){
-
-    std::unique_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
-
-    // Compile vertex shader
-    if (!program->addShaderFromSourceFile(QOpenGLShader::Vertex, vertexShaderPath));
-
-
-    // Compile fragment shader
-    if (!program->addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentShaderPath));
-
-    // Link shader pipeline
-    if (!program->link());
-
-    // Bind shader pipeline for use
-    if (!program->bind());
-
-    return std::move(program);
-}
-
-std::unique_ptr<QOpenGLTexture> Engine::loadTexture(QString texturePath){
-
-    std::unique_ptr<QOpenGLTexture> texture(new QOpenGLTexture(QImage(texturePath)));
-
-    // Set nearest filtering mode for texture minification
-    texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-
-    // Set bilinear filtering mode for texture magnification
-    texture->setMagnificationFilter(QOpenGLTexture::LinearMipMapLinear);
-
-    return texture;
-}
-
-void Engine::createMaterial(DataBuffer& buffer){
-
-    QString name = buffer.popString();
-    QString alias = buffer.popString();
-    QString type = buffer.popString();
-    QString vertshader = buffer.popString();
-    QString fragshader = buffer.popString();
-    QString diffusePath = buffer.popString();
-    QString localPath = buffer.popString();
-    QString heightPath = buffer.popString();
-    QString specularPath = buffer.popString();
-
-    std::unique_ptr<QOpenGLShaderProgram> shader(nullptr);
-    std::unique_ptr<QOpenGLTexture> diffuse(nullptr);
-    std::unique_ptr<QOpenGLTexture> local(nullptr);
-    std::unique_ptr<QOpenGLTexture> height(nullptr);
-    std::unique_ptr<QOpenGLTexture> specular(nullptr);
-
-
-    if(!vertshader.isEmpty() && !fragshader.isEmpty()){
-        shader = std::move(createShaderProgram(vertshader, fragshader));
-    }else{
-        throw runtime_error("Error: material definition does not contain paths to shader source");
-    }
-
-    if(!diffusePath.isEmpty()){
-        diffuse = std::move(loadTexture(diffusePath));
-    }
-
-    if(!localPath.isEmpty()){
-        local = std::move(loadTexture(localPath));
-    }
-
-    if(!heightPath.isEmpty()){
-        height = std::move(loadTexture(heightPath));
-    }
-
-    if(!specularPath.isEmpty()){
-        specular = std::move(loadTexture(specularPath));
-    }
-
-    resourceManager->storeMaterial(name, alias, type, std::move(shader), std::move(diffuse), std::move(local), std::move(height), std::move(specular));
-}
-
-
 void Engine::handleKeyEvent(QKeyEvent *e){
 
     switch(e->key()){
         case Qt::Key_W:
             camera->moveForward();
-            //qDebug() << "W key pressed";
             break;
 
         case Qt::Key_S:
             camera->moveBackward();
-            //qDebug() << "S key pressed";
             break;
 
         case Qt::Key_A:
             camera->moveLeft();
-            //qDebug() << "A key pressed";
             break;
 
         case Qt::Key_D:
             camera->moveRight();
-            //qDebug() << "D key pressed";
             break;
 
         case Qt::Key_R:
             camera->moveUp();
-            //qDebug() << "R key pressed";
             break;
 
         case Qt::Key_F:
             camera->moveDown();
-            //qDebug() << "F key pressed";
             break;
 
         case Qt::Key_Up:
             camera->lookUp();
-            //qDebug() << "up key pressed";
             break;
 
         case Qt::Key_Down:
             camera->lookDown();
-            //qDebug() << "down key pressed";
             break;
 
         case Qt::Key_Left:
             camera->lookLeft();
-            //qDebug() << "left key pressed";
             break;
 
         case Qt::Key_Right:
             camera->lookRight();
-            //qDebug() << "right key pressed";
             break;
     }
 
@@ -319,17 +182,7 @@ void Engine::updateWorld(qint64 delta){
 
 void Engine::resize(int w, int h)
 {
-    // Calculate aspect ratio
-    qreal aspect = qreal(w) / qreal(h ? h : 1);
-
-    // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 0.1, zFar = 1000.0, fov = 45.0;
-
-    // Reset projection
-    projection.setToIdentity();
-
-    // Set perspective projection
-    projection.perspective(fov, aspect, zNear, zFar);
+    camera->resize(w, h);
 }
 
 void Engine::render()
@@ -337,7 +190,7 @@ void Engine::render()
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    entity->getModel()->render(projection * camera->getViewMatrix() * entity->getPositionOrientation());
-    entity2->getModel()->render(projection * camera->getViewMatrix() * entity2->getPositionOrientation());
+    entity->render(camera->getViewMatrix());
+    entity2->render(camera->getViewMatrix());
 
 }

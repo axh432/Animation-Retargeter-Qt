@@ -12,6 +12,12 @@ Entity::Entity(unique_ptr<GLModel> modelRef, Anim* animRef, QMatrix4x4 matrix):
     this->getModel();
 }
 
+void Entity::render(QMatrix4x4& view){
+    QMatrix4x4 viewPosition = view * positionOrientation;
+
+    model->render(viewPosition);
+}
+
 void Entity::update(double delta){
 
     this->getModel();

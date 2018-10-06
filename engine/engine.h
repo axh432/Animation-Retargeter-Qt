@@ -31,8 +31,9 @@ public:
 private:
     void initializeGL();
     void loadMaterial(QString materialName);
-    void loadModel(QString modelPath);
-    void loadAnim(QString animPath);
+    void loadModel(QString modelPath, QString name);
+    void loadAnim(QString animPath, QString name);
+    void loadResource(QString resourcePath, QString schemaPath, DataBuffer* buffer);
     void updateEntities(double delta);
     void createEntities();
     unique_ptr<QOpenGLShaderProgram> createShaderProgram(QString vertexShaderPath, QString fragmentShaderPath);
@@ -44,7 +45,6 @@ private:
     unique_ptr<Entity> entity2;
     unique_ptr<Camera> camera;
     unique_ptr<ResourceManager> resourceManager;
-    QMatrix4x4 projection;
 };
 
 #endif

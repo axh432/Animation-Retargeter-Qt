@@ -30,7 +30,12 @@ void GLMesh::update(Skeleton* skeleton){
     qDebug() << "Update - vertexBuffer size: " << vertices.size();*/
 }
 
-void GLMesh::render(QMatrix4x4 mvp_matrix){
+void GLMesh::render(QMatrix4x4& mvp_matrix){
+
+    //if we dont have a material dont draw
+    if(!material){
+        return;
+    }
 
     QOpenGLTexture* diffuse = this->material->getDiffuse();
     QOpenGLShaderProgram* shader = this->material->getShader();
@@ -55,19 +60,20 @@ void GLMesh::render(QMatrix4x4 mvp_matrix){
 
     indexBuffer->bind();
 
-    /*qDebug() << "indexBuffer is created: " << indexBuffer->isCreated();
-    qDebug() << "indexBuffer size: " << indexBuffer->size();*/
+    qDebug() << "indexBuffer is created: " << indexBuffer->isCreated();
+    qDebug() << "indexBuffer size: " << indexBuffer->size();
 
-    ifVertexBufferNotCreatedCreateVertexBuffer();
+    qDebug() << "vertexBuffer is created: " << vertices.isCreated();
+    qDebug() << "vertexBuffer size: " << vertices.size();
+
+    qDebug() << "texCoords is created: " << texCoords->isCreated();
+    qDebug() << "texCoords size: " << texCoords->size();
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
     vertices.bind();
     int vertexLocation = shader->attributeLocation("a_position");
     shader->enableAttributeArray(vertexLocation);
     shader->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, 0);
-
-    /*qDebug() << "vertexBuffer is created: " << vertices.isCreated();
-    qDebug() << "vertexBuffer size: " << vertices.size();*/
 
     // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
     texCoords->bind();
@@ -76,9 +82,6 @@ void GLMesh::render(QMatrix4x4 mvp_matrix){
     shader->setAttributeBuffer(texcoordLocation, GL_FLOAT, 0, 2, 0);
 
     qDebug() << "numIndices: " << numIndices;
-
-    /*qDebug() << "texCoords is created: " << texCoords->isCreated();
-    qDebug() << "texCoords size: " << texCoords->size();*/
 
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
@@ -93,7 +96,7 @@ void GLMesh::render(QMatrix4x4 mvp_matrix){
 //GLModel
 GLModel::GLModel(std::vector<GLMesh> meshes, Model* model): meshes(std::move(meshes)), model(model){/*empty*/}
 
-void GLModel::render(QMatrix4x4 mvp_matrix){
+void GLModel::render(QMatrix4x4& mvp_matrix){
 
     for(int i = 0; i < meshes.size(); i++){
         meshes[i].render(mvp_matrix);

@@ -10,11 +10,28 @@ Camera::Camera(QVector3D newPos):
     position(newPos)
 {/*empty*/}
 
+void Camera::resize(int w, int h){
+    // Calculate aspect ratio
+    qreal aspect = qreal(w) / qreal(h ? h : 1);
 
-QMatrix4x4 Camera::getViewMatrix() {
-   QMatrix4x4 view;
-   view.lookAt(position, position + viewDirection, up);
-   return view;
+    // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
+    const qreal zNear = 0.1, zFar = 1000.0, fov = 45.0;
+
+    // Reset projection
+    projection.setToIdentity();
+
+    // Set perspective projection
+    projection.perspective(fov, aspect, zNear, zFar);
+}
+
+QMatrix4x4& Camera::getViewMatrix() {
+
+   currentView.setToIdentity();
+   currentView += projection;
+
+   currentView.lookAt(position, position + viewDirection, up);
+
+   return currentView;
 }
 
 /*

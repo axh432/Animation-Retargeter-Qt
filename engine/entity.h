@@ -24,6 +24,7 @@ private:
 public:
     Entity(unique_ptr<GLModel> model, Anim* anim, QMatrix4x4 matrix);
 
+    void render(QMatrix4x4& view);
     void update(double delta);
     inline GLModel* getModel(){ return model.get(); }
     inline void setPositionOrientation(QMatrix4x4 posOrient){ this->positionOrientation = posOrient; }

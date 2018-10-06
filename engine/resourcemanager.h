@@ -11,14 +11,6 @@ class ResourceManager
 {
 public:
     ResourceManager();
-    void storeMaterial( QString name,
-                        QString alias,
-                        QString type,
-                        std::unique_ptr<QOpenGLShaderProgram> shader,
-                        std::unique_ptr<QOpenGLTexture> diffuse,
-                        std::unique_ptr<QOpenGLTexture>local,
-                        std::unique_ptr<QOpenGLTexture>height,
-                        std::unique_ptr<QOpenGLTexture>specular );
 
     Material* getMaterial( QString materialName );
 
@@ -29,6 +21,8 @@ public:
     void storeModel( DataBuffer* buffer, QString name );
 
     void storeAnim( DataBuffer* buffer, QString name );
+
+    void storeMaterial(DataBuffer& buffer);
 
 private:
     QHash<QString, Material*> materials;
@@ -41,6 +35,9 @@ private:
     std::vector<Anim> animStorage;
 
     unique_ptr<Md5Factory> md5Factory;
+
+    unique_ptr<QOpenGLShaderProgram> createShaderProgram(QString vertexShaderPath, QString fragmentShaderPath);
+    unique_ptr<QOpenGLTexture> loadTexture(QString texturePath);
 };
 
 #endif // RESOURCEMANAGER_H

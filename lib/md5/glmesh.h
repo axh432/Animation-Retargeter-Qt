@@ -10,7 +10,7 @@ public:
     GLMesh(Mesh* mesh, Material* material);
     ~GLMesh();
     void update(Skeleton* skeleton);
-    void render(QMatrix4x4 mvp_matrix);
+    void render(QMatrix4x4& mvp_matrix);
     inline QOpenGLBuffer* getVertexBuffer(){ return &vertices; }
     inline QOpenGLBuffer* getIndexBuffer(){ return &mesh->getGLData().indices; }
     inline QOpenGLBuffer* getTextureCoords(){ return &mesh->getGLData().textureCoords; }
@@ -30,7 +30,7 @@ class GLModel{
 public:
     GLModel(std::vector<GLMesh> meshes, Model* model);
     void update(Skeleton* skeleton);
-    void render(QMatrix4x4 mvp_matrix);
+    void render(QMatrix4x4& mvp_matrix);
 
     inline std::vector<GLMesh> getGLMeshes(){ return meshes; }
 
