@@ -1,8 +1,12 @@
 <RCC>
     <qresource prefix="/">
         <file>cube.png</file>
-	<file>imp_d.tga</file>
-	<file>textures/cube.png</file>
-	<file>textures/imp_d.tga</file>
+	
+        <file>imp_d.tga</file>
+	
+        <file>textures/cube.png</file>
+	
+        <file>textures/imp_d.tga</file>
+        <file>textures/fatty_d.tga</file>
     </qresource>
 </RCC>

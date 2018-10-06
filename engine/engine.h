@@ -18,8 +18,6 @@
 #include "lib/TextProcessor/databuffer.h"
 #include "resourcemanager.h"
 
-class GeometryEngine;
-
 class Engine : protected QOpenGLFunctions {
 
 public:
@@ -32,14 +30,11 @@ public:
 
 private:
     void initializeGL();
-    void initShaders();
-    void initTextures();
-    void initMaterials();
-    void testSimpleModel();
-    void loadModel();
-    void loadAnim();
-    void updateEntity(double delta);
-    void createEntity();
+    void loadMaterial(QString materialName);
+    void loadModel(QString modelPath);
+    void loadAnim(QString animPath);
+    void updateEntities(double delta);
+    void createEntities();
     unique_ptr<QOpenGLShaderProgram> createShaderProgram(QString vertexShaderPath, QString fragmentShaderPath);
     unique_ptr<QOpenGLTexture> loadTexture(QString texturePath);
     void createMaterial(DataBuffer& buffer);
@@ -47,23 +42,9 @@ private:
 private:
     unique_ptr<Entity> entity;
     unique_ptr<Entity> entity2;
-    unique_ptr<GLModel> glModel;
-    Anim* anim;
+    unique_ptr<Camera> camera;
     unique_ptr<ResourceManager> resourceManager;
-
-    QOpenGLShaderProgram program;
-    GeometryEngine *geometries;
-    Camera *camera;
-
-    QOpenGLTexture *texture;
-    QOpenGLTexture *imp;
-
     QMatrix4x4 projection;
-
-    QVector2D mousePressPosition;
-    QVector3D rotationAxis;
-    qreal angularSpeed;
-    QQuaternion rotation;
 };
 
 #endif

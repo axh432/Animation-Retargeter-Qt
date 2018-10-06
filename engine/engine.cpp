@@ -16,9 +16,6 @@
 using std::unique_ptr;
 
 Engine::Engine() :
-    geometries(0),
-    texture(0),
-    angularSpeed(30.0f),
     camera(new Camera(QVector3D(0,0,0)))
 {
     resourceManager.reset(new ResourceManager());
@@ -29,9 +26,6 @@ void Engine::initializeGL()
 {
     initializeOpenGLFunctions();
     glClearColor(0, 0, 0, 1);
-    initShaders();
-    initMaterials();
-    initTextures();
 
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
@@ -40,14 +34,13 @@ void Engine::initializeGL()
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
 
-    geometries = new GeometryEngine;
-
-    createEntity();
+    createEntities();
 }
 
-void Engine::createEntity(){
-    loadModel();
-    loadAnim();
+void Engine::createEntities(){
+    loadMaterial(":/imp.mtr");
+    loadModel(":/imp.md5mesh");
+    loadAnim(":/evade_left.md5anim");
 
     QMatrix4x4 matrix;
     matrix.translate(0.0f, -35.0f, -150.0f);
@@ -59,12 +52,10 @@ void Engine::createEntity(){
 
     entity.reset(new Entity(resourceManager->createGLModel(":/imp.md5mesh"), resourceManager->getAnim(":/evade_left.md5anim"), matrix));
     entity2.reset(new Entity(resourceManager->createGLModel(":/imp.md5mesh"), resourceManager->getAnim(":/evade_left.md5anim"), matrix2));
-
-    //geometries->initMd5Geometry(entity->getModel());
 }
 
-void Engine::loadModel(){
-    QFile infile(":/imp.md5mesh");
+void Engine::loadModel(QString modelPath){
+    QFile infile(modelPath);
     QFile schemaFile(":/md5mesh.schema");
 
     if(!infile.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -99,9 +90,9 @@ void Engine::loadModel(){
 
 }
 
-void Engine::loadAnim(){
+void Engine::loadAnim(QString animPath){
 
-    QFile infile(":/evade_left.md5anim");
+    QFile infile(animPath);
     QFile schemaFile(":/md5anim.schema");
 
     if(!infile.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -137,72 +128,16 @@ void Engine::loadAnim(){
     resourceManager->storeAnim(&buffer, name);
 }
 
-void Engine::updateEntity(double delta){
+void Engine::updateEntities(double delta){
 
     entity->update(delta);
     entity2->update(delta);
 
 }
 
-void Engine::testSimpleModel(){
-    QFile infile(":/hellknight.md5mesh");
-    QFile schemaFile(":/md5mesh.schema");
+void Engine::loadMaterial(QString materialName){
 
-    if(!infile.open(QIODevice::ReadOnly | QIODevice::Text)){
-        qCritical() << "Unable to open file: " << infile.fileName();
-    }
-    qDebug() << "Opened file: " << infile.fileName();
-
-    if(!schemaFile.open(QIODevice::ReadOnly | QIODevice::Text)){
-        qCritical() << "Unable to open file: " << schemaFile.fileName();
-    }
-    qDebug() << "Opened file: " << schemaFile.fileName();
-
-    unique_ptr<QTextStream> in(new QTextStream(&infile));
-    unique_ptr<QTextStream> schema(new QTextStream(&schemaFile));
-    DataBuffer buffer;
-
-    unique_ptr<TextProcessor> processor(new TextProcessor(std::move(in), std::move(schema), &buffer));
-    qDebug("Created Processor");
-
-    processor->parse();
-    qDebug("finished parsing");
-
-    qDebug() << "Parse Result: \n\tInt Buffer size - " << buffer.getIntBufferSize()
-             << " \n\tFloat Buffer size - " << buffer.getFloatBufferSize()
-             << " \n\tString Buffer size - " << buffer.getStringBufferSize();
-
-    qDebug() << "MD5Version " << buffer.popInt();
-    qDebug() << "numJoints " << buffer.popInt();
-    qDebug() << "numMeshes " << buffer.popInt();
-    qDebug() << "";
-    qDebug() << "joints {";
-    qDebug() << "origin " << buffer.popInt() << "( " << buffer.popFloat() << " " << buffer.popFloat() << " " << buffer.popFloat()
-             << " ) ( " << buffer.popFloat() << " " << buffer.popFloat() << " " << buffer.popFloat() << ")";
-}
-
-void Engine::initShaders()
-{
-    // Compile vertex shader
-    if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vshader.glsl"));
-        //throw an exception
-
-    // Compile fragment shader
-    if (!program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fshader.glsl"));
-        //throw an exception
-
-    // Link shader pipeline
-    if (!program.link());
-        //throw an exception
-
-    // Bind shader pipeline for use
-    if (!program.bind());
-        //throw an exception
-}
-
-void Engine::initMaterials(){
-
-    QFile infile(":/imp.mtr");
+    QFile infile(materialName);
     QFile schemaFile(":/mtr.schema");
 
     if(!infile.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -226,10 +161,6 @@ void Engine::initMaterials(){
     qDebug("finished parsing");
 
     createMaterial(buffer);
-
-    /*for(int i = 0; i < buffer.getStringBufferSize(); i++){
-        qDebug() << buffer.popString();
-    }*/
 
 }
 
@@ -310,24 +241,6 @@ void Engine::createMaterial(DataBuffer& buffer){
     resourceManager->storeMaterial(name, alias, type, std::move(shader), std::move(diffuse), std::move(local), std::move(height), std::move(specular));
 }
 
-void Engine::initTextures()
-{
-    // Load cube.png image
-    texture = new QOpenGLTexture(QImage(":/cube.png").mirrored());
-    imp = new QOpenGLTexture(QImage(":/imp_d.tga"));
-
-    // Set nearest filtering mode for texture minification
-    texture->setMinificationFilter(QOpenGLTexture::Nearest);
-    imp->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-
-    // Set bilinear filtering mode for texture magnification
-    texture->setMagnificationFilter(QOpenGLTexture::Linear);
-    imp->setMagnificationFilter(QOpenGLTexture::LinearMipMapLinear);
-
-    // Wrap texture coordinates by repeating
-    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-    texture->setWrapMode(QOpenGLTexture::Repeat);
-}
 
 void Engine::handleKeyEvent(QKeyEvent *e){
 
@@ -390,10 +303,7 @@ Engine::~Engine()
 {
     entity.reset(nullptr);
     entity2.reset(nullptr);
-    delete texture;
-    delete imp;
-    delete geometries;
-    delete camera;
+    camera.reset(nullptr);
     std::cout << "Deleting engine" << std::endl;
 }
 
@@ -403,7 +313,7 @@ void Engine::updateWorld(qint64 delta){
 
     double deltaAsDouble = (double) delta;
 
-    updateEntity(deltaAsDouble);
+    updateEntities(deltaAsDouble);
 }
 
 
@@ -430,21 +340,4 @@ void Engine::render()
     entity->getModel()->render(projection * camera->getViewMatrix() * entity->getPositionOrientation());
     entity2->getModel()->render(projection * camera->getViewMatrix() * entity2->getPositionOrientation());
 
-
-    /*Mesh& mesh = entity->getModel()->meshes[0];
-
-    QString materialName = mesh.getMaterialName();
-
-    Material* material = resourceManager->getMaterial(materialName);
-
-    material->getDiffuse()->bind();
-
-    QOpenGLShaderProgram* impShader = material->getShader();
-
-    // Set modelview-projection matrix
-    impShader->setUniformValue("mvp_matrix", projection * camera->getViewMatrix() * entity->getPositionOrientation());
-
-    impShader->setUniformValue("texture", 0);
-
-    geometries->drawMd5Geometry(impShader);*/
 }

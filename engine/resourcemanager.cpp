@@ -67,6 +67,7 @@ Material* ResourceManager::getMaterial( QString materialName ){
     return materials.find(materialName).value();
 }
 
+
 Anim* ResourceManager::getAnim(QString animName){
     return anims.find(animName).value();
 }
