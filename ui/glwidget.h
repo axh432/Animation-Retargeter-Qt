@@ -26,6 +26,7 @@ public:
     QSize minimumSizeHint() const Q_DECL_OVERRIDE;
     QSize sizeHint() const Q_DECL_OVERRIDE;
     void handleKeyEvent(QKeyEvent *e);
+    void createEntities();
 
 protected:
     void initializeGL() Q_DECL_OVERRIDE;

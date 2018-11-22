@@ -4,6 +4,7 @@
 #include "lib/md5/md5.h"
 #include <memory>
 #include <QMatrix4x4>
+#include <QOpenGLFunctions>
 
 
 class Entity

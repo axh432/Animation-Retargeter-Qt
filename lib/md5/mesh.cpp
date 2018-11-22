@@ -8,7 +8,7 @@
 
 
 Mesh::Mesh(
-    QString newMaterialName,
+    QString         newMaterialName,
     vector<float>   newTextureCoords,
     vector<Vert>    newVerts,
     vector<GLuint>  newTris,
@@ -20,8 +20,20 @@ Mesh::Mesh(
     tris(std::move(newTris)),
     weights(std::move(newWeights)){
 
-    this->glData.indices.create();
-    this->glData.textureCoords.create();
+
+
+
+    if(this->glData.indices.create()){
+        qDebug() << this->getMaterialName() << " indices buffer has been created";
+    }else{
+        qDebug() << this->getMaterialName() << " indices buffer has not created";
+    }
+
+    if(this->glData.textureCoords.create()){
+        qDebug() << this->getMaterialName() << " textureCoords buffer has been created";
+    }else{
+        qDebug() << this->getMaterialName() << " textureCoords buffer has not created";
+    }
 
     this->glData.textureCoords.bind();
     this->glData.textureCoords.allocate(textureCoords.data(), textureCoords.size() * sizeof(float));

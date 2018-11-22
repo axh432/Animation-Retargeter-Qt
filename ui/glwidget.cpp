@@ -37,6 +37,12 @@ void GLWidget::initializeGL()
     engine.reset(new Engine());
 }
 
+void GLWidget::createEntities(){
+    makeCurrent();
+    engine->createEntities();
+    doneCurrent();
+}
+
 void GLWidget::updateWorld(qint64 delta){
     makeCurrent();
     qDebug() << "updateWorld() called";

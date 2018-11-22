@@ -1,10 +1,38 @@
 #include "glmesh.h"
 
 GLMesh::GLMesh(Mesh* mesh, Material* material): mesh(mesh), material(material), numIndices(mesh->getTris().size()){
-    vertices.create();
+    initializeOpenGLFunctions();
+    if(vertices.create()){
+        qDebug() << this->mesh->getMaterialName() << " vertices buffer has been created";
+    }else{
+        qDebug() << this->mesh->getMaterialName() << " vertices buffer has not created";
+    }
 }
 
-void GLMesh::ifVertexBufferNotCreatedCreateVertexBuffer(){
+void GLMesh::ifBuffersNotCreatedCreateBuffers(){
+
+    QOpenGLBuffer* indices = getIndexBuffer();
+    QOpenGLBuffer* textureCoords = getTextureCoords();
+
+    if(!indices->isCreated()){
+        indices->create();
+
+        vector<GLuint>& tris = mesh->getTris();
+
+        indices->bind();
+        indices->allocate(tris.data(), tris.size() * sizeof(GLuint));
+        qDebug() << "indexBuffer is recreated";
+    }
+
+    if(!textureCoords->isCreated()){
+        textureCoords->create();
+
+        vector<float>& coords = mesh->getTextureCoords();
+
+        textureCoords->bind();
+        textureCoords->allocate(coords.data(), coords.size() * sizeof(float));
+        qDebug() << "textureBuffer is recreated";
+    }
 
     if(!vertices.isCreated()){
         vertices.create();
@@ -21,13 +49,65 @@ void GLMesh::update(Skeleton* skeleton){
 
     std::vector<float> verts = mesh->computeGLVertices(skeleton);
 
-    ifVertexBufferNotCreatedCreateVertexBuffer();
+    //ifBuffersNotCreatedCreateBuffers();
 
     vertices.bind();
     vertices.allocate(verts.data(), verts.size() * sizeof(float));
 
-    /*qDebug() << "Update - vertexBuffer is created: " << vertices.isCreated();
-    qDebug() << "Update - vertexBuffer size: " << vertices.size();*/
+    qDebug() << "Update - vertexBuffer is created - " << this->mesh->getMaterialName() << ": " << vertices.isCreated();
+    qDebug() << "Update - vertexBuffer size - " << this->mesh->getMaterialName() << ": " << vertices.size();
+}
+
+void GLMesh::checkGLValidity(){
+
+    qDebug() << this->mesh->getMaterialName();
+
+    //if we dont have a material dont draw
+    if(!material){
+        qDebug() << "no material";
+    }else{
+
+        QOpenGLTexture* diffuse = this->material->getDiffuse();
+        QOpenGLShaderProgram* shader = this->material->getShader();
+
+        shader->bind();
+
+        qDebug() << "is shader linked?: " << shader->isLinked();
+
+        diffuse->bind();
+
+        qDebug() << "is diffuse texture created?: " << diffuse->isCreated();
+        qDebug() << "is diffuse texture bound?: " << diffuse->isBound();
+        qDebug() << "is diffuse texture storage allocated?: " << diffuse->isStorageAllocated();
+    }
+
+    QOpenGLBuffer* indexBuffer = this->getIndexBuffer();
+    QOpenGLBuffer* texCoords = this->getTextureCoords();
+
+
+    // Tell OpenGL which VBOs to use
+    indexBuffer->bind();
+    vertices.bind();
+    texCoords->bind();
+
+    qDebug() << "indexBuffer is created: " << indexBuffer->isCreated();
+    qDebug() << "indexBuffer size: " << indexBuffer->size();
+
+    qDebug() << "vertexBuffer is created: " << vertices.isCreated();
+    qDebug() << "vertexBuffer size: " << vertices.size();
+
+    qDebug() << "texCoords is created: " << texCoords->isCreated();
+    qDebug() << "texCoords size: " << texCoords->size();
+
+
+    qDebug() << "numIndices: " << numIndices;
+
+    indexBuffer->release();
+    vertices.release();
+    texCoords->release();
+
+    qDebug() << "";
+
 }
 
 void GLMesh::render(QMatrix4x4& mvp_matrix){
@@ -57,6 +137,8 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
     shader->setUniformValue("texture", 0);
 
     // Tell OpenGL which VBOs to use
+
+    ifBuffersNotCreatedCreateBuffers();
 
     indexBuffer->bind();
 
@@ -95,6 +177,14 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
 
 //GLModel
 GLModel::GLModel(std::vector<GLMesh> meshes, Model* model): meshes(std::move(meshes)), model(model){/*empty*/}
+
+void GLModel::checkGLValidity(){
+
+    for(int i = 0; i < meshes.size(); i++){
+        meshes[i].checkGLValidity();
+    }
+
+}
 
 void GLModel::render(QMatrix4x4& mvp_matrix){
 

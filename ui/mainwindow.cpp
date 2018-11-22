@@ -80,6 +80,8 @@ void MainWindow::run(){
 
     //renderloop
     qDebug("Entering RenderLoop");
+    glWidget->createEntities();
+
    while(running){
         timer->restart();
 

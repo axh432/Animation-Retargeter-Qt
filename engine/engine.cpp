@@ -34,13 +34,16 @@ void Engine::initializeGL()
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
 
-    createEntities();
 }
 
 void Engine::createEntities(){
     loadMaterial(":/imp.mtr");
     loadModel(":/imp.md5mesh", "imp");
     loadAnim(":/evade_left.md5anim", "evade_left");
+
+    /*loadMaterial(":/fatty.mtr");
+    loadModel(":/fatty.md5mesh", "fatty");
+    loadAnim(":/keycardgetup.md5anim", "keycardgetup");*/
 
     QMatrix4x4 matrix;
     matrix.translate(0.0f, -35.0f, -150.0f);
@@ -51,7 +54,7 @@ void Engine::createEntities(){
     matrix2.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
 
     entity.reset(new Entity(resourceManager->createGLModel("imp"), resourceManager->getAnim("evade_left"), matrix));
-    entity2.reset(new Entity(resourceManager->createGLModel("imp"), resourceManager->getAnim("evade_left"), matrix2));
+    //entity2.reset(new Entity(resourceManager->createGLModel("fatty"), resourceManager->getAnim("keycardgetup"), matrix2));
 }
 
 void Engine::loadResource(QString resourcePath, QString schemaPath, DataBuffer* buffer){
@@ -110,8 +113,11 @@ void Engine::loadMaterial(QString materialPath){
 
 void Engine::updateEntities(double delta){
 
-    entity->update(delta);
-    entity2->update(delta);
+    if(entity.get()){
+        entity->update(delta);
+    }
+
+    //entity2->update(delta);
 
 }
 
@@ -190,7 +196,10 @@ void Engine::render()
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    entity->render(camera->getViewMatrix());
-    entity2->render(camera->getViewMatrix());
+    if(entity.get()){
+        //entity->getModel()->checkGLValidity();
+        entity->render(camera->getViewMatrix());
+    }
+    //entity2->render(camera->getViewMatrix());
 
 }

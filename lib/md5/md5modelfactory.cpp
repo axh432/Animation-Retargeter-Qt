@@ -85,7 +85,11 @@ vector<Mesh> Md5ModelFactory::buildMeshes(DataBuffer* buffer, ModelHeader& heade
 
     vector<Mesh> meshes;
 
-    for(int i = 0; i < header.numMeshes; i++){
+   /* for(int i = 0; i < header.numMeshes; i++){
+        buildMesh(buffer, meshes);
+    }*/
+
+    for(int i = 0; i < 1; i++){
         buildMesh(buffer, meshes);
     }
 

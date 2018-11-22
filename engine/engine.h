@@ -27,6 +27,7 @@ public:
     void resize(int w, int h);
     void updateWorld(qint64 delta);
     void handleKeyEvent(QKeyEvent *e);
+    void createEntities();
 
 private:
     void initializeGL();
@@ -35,7 +36,6 @@ private:
     void loadAnim(QString animPath, QString name);
     void loadResource(QString resourcePath, QString schemaPath, DataBuffer* buffer);
     void updateEntities(double delta);
-    void createEntities();
     unique_ptr<QOpenGLShaderProgram> createShaderProgram(QString vertexShaderPath, QString fragmentShaderPath);
     unique_ptr<QOpenGLTexture> loadTexture(QString texturePath);
     void createMaterial(DataBuffer& buffer);
