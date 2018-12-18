@@ -10,17 +10,25 @@ std::unique_ptr<QOpenGLShaderProgram> ResourceManager::createShaderProgram(QStri
     std::unique_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
 
     // Compile vertex shader
-    if (!program->addShaderFromSourceFile(QOpenGLShader::Vertex, vertexShaderPath));
+    if (!program->addShaderFromSourceFile(QOpenGLShader::Vertex, vertexShaderPath)){
+            throw runtime_error("Error: Vertex shader compilation failed - " + program->log().toStdString());
+        }
 
 
     // Compile fragment shader
-    if (!program->addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentShaderPath));
+    if (!program->addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentShaderPath)){
+            throw runtime_error("Error: Fragment shader compilation failed - " + program->log().toStdString());
+    }
 
     // Link shader pipeline
-    if (!program->link());
+    if (!program->link()){
+            throw runtime_error("Error: Shader linking failed - " + program->log().toStdString());
+    }
 
     // Bind shader pipeline for use
-    if (!program->bind());
+    if (!program->bind()){
+        throw runtime_error("Error: Shader binding failed - " + program->log().toStdString());
+    }
 
     return std::move(program);
 }
@@ -80,9 +88,10 @@ void ResourceManager::storeMaterial(DataBuffer& buffer){
     }
 
     materialStorage.emplace_back(name, alias, type, std::move(shader), std::move(diffuse), std::move(local), std::move(height), std::move(specular));
-    Material* material = &materialStorage[materialStorage.size() - 1];
 
-    materials.insert(material->getName(), material);
+    size_t materialIndex = materialStorage.size() - 1;
+
+    materials.insert(name, materialIndex);
 }
 
 
@@ -90,59 +99,70 @@ void ResourceManager::storeModel(DataBuffer* buffer, QString name){
 
     md5Factory->buildModel(buffer, name, modelStorage);
 
-    Model* modelRef = &modelStorage[modelStorage.size() - 1];
+    size_t modelIndex = modelStorage.size() - 1;
 
-    models.insert(modelRef->name, modelRef);
+    models.insert(name, modelIndex);
 }
 
 void ResourceManager::storeAnim( DataBuffer* buffer, QString name ){
 
     md5Factory->buildAnim(buffer, name, animStorage);
 
-    Anim* animRef = &animStorage[animStorage.size() - 1];
+    size_t animIndex = animStorage.size() - 1;
 
-    anims.insert(animRef->name, animRef);
-}
-
-unique_ptr<GLModel> ResourceManager::createGLModel( QString modelName ){
-
-    Model* model = models.find(modelName).value();
-
-    vector<GLMesh> glmeshes;
-    vector<Mesh>& meshes = model->meshes;
-
-    for(int i = 0; i < meshes.size(); i++){
-        Mesh* mesh = &meshes[i];
-
-        QString materialName = mesh->getMaterialName();
-
-        Material* material = getMaterial(materialName);
-
-        glmeshes.emplace_back(mesh, material);
-
-        glmeshes[i].update(model->bindPose.get());
-    }
-
-    unique_ptr<GLModel> glModel(new GLModel(std::move(glmeshes), model));
-
-    return std::move(glModel);
+    anims.insert(name, animIndex);
 }
 
 Material* ResourceManager::getMaterial( QString materialName ){
 
     if(materials.contains(materialName)){
-        return materials.find(materialName).value();
+        size_t index = materials.find(materialName).value();
+        return &materialStorage[index];
     }else{
         return nullptr;
     }
 }
 
+Model* ResourceManager::getModel(QString modelName){
+
+    if(models.contains(modelName)){
+        size_t index = models.find(modelName).value();
+        return &modelStorage[index];
+    }else{
+        return nullptr;
+    }
+}
 
 Anim* ResourceManager::getAnim(QString animName){
 
     if(anims.contains(animName)){
-        return anims.find(animName).value();
+        size_t index = anims.find(animName).value();
+        return &animStorage[index];
     }else{
         return nullptr;
     }
+}
+
+GraphicsCardSpace ResourceManager::computeGraphicsCardSpaceForModel( QString modelName ){
+
+    Model* model = getModel(modelName);
+
+    vector<Mesh>& meshes = model->meshes;
+    Skeleton* bindPose = model->bindPose.get();
+
+    GraphicsCardSpace space = {0, 0, 0};
+
+    for(int i = 0; i < meshes.size(); i++){
+        Mesh* mesh = &meshes[i];
+
+        std::vector<GLfloat> vertices = mesh->computeGLVertices(bindPose);
+        std::vector<GLuint> indices = mesh->getTris();
+        std::vector<GLfloat> texCoords = mesh->getTextureCoords();
+
+        space.vertexSpaceInBytes += vertices.size() * sizeof(GLfloat);
+        space.textureSpaceInBytes += texCoords.size() * sizeof(GLfloat);
+        space.indexSpaceInBytes += indices.size() * sizeof(GLuint);
+    }
+
+    return space;
 }

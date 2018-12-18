@@ -18,7 +18,6 @@ SOURCES += \
         ui/mainwindow.cpp \
         ui/glwidget.cpp \
         engine/engine.cpp \
-        engine/geometryengine.cpp \
         lib/TextProcessor/databuffer.cpp \
         lib/TextProcessor/textprocessor.cpp \
         lib/md5/md5animfactory.cpp \
@@ -31,7 +30,8 @@ SOURCES += \
     engine/entity.cpp \
     engine/material.cpp \
     engine/resourcemanager.cpp \
-    lib/md5/glmesh.cpp
+    lib/md5/glmesh.cpp \
+    engine/graphicscardmemorymanager.cpp
 
 
 HEADERS += \
@@ -50,7 +50,9 @@ HEADERS += \
     engine/entity.h \
     engine/material.h \
     engine/resourcemanager.h \
-    lib/md5/glmesh.h
+    lib/md5/glmesh.h \
+    engine/graphicscardmemorymanager.h \
+    engine/gldata.h
 
 
 RESOURCES += \

@@ -25,8 +25,8 @@ private:
     vector<Mesh> buildMeshes(DataBuffer* buffer, ModelHeader& header);
     void buildMesh(DataBuffer* buffer, vector<Mesh>& meshes);
 
-    void buildVerts(DataBuffer* buffer, vector<Vert>& verts, vector<float>& textureCoords);
-    void buildVert(DataBuffer* buffer, vector<Vert>& verts, vector<float>& textureCoords);
+    void buildVerts(DataBuffer* buffer, vector<Vert>& verts, vector<GLfloat>& textureCoords);
+    void buildVert(DataBuffer* buffer, vector<Vert>& verts, vector<GLfloat>& textureCoords);
 
     void buildTris(DataBuffer* buffer, vector<GLuint>& tris);
     void buildTri(DataBuffer* buffer, vector<GLuint>& tris);

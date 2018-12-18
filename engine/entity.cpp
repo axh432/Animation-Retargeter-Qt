@@ -9,7 +9,6 @@ Entity::Entity(unique_ptr<GLModel> modelRef, Anim* animRef, QMatrix4x4 matrix):
     anim(animRef),
     positionOrientation(matrix)
 {
-    this->getModel();
 }
 
 void Entity::render(QMatrix4x4& view){

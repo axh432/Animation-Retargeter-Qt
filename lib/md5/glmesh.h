@@ -1,45 +1,39 @@
 #ifndef GLMESH_H
 #define GLMESH_H
 
-#include "md5.h"
-#include "engine/material.h"
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
+#include "md5.h"
+#include "engine/material.h"
+#include "engine/gldata.h"
+
 
 class GLMesh : protected QOpenGLFunctions{
 public:
-    GLMesh(Mesh* mesh, Material* material);
-    ~GLMesh();
+    GLMesh(Mesh* mesh, unique_ptr<GLData> glData, Material* material);
     void update(Skeleton* skeleton);
     void render(QMatrix4x4& mvp_matrix);
-    void checkGLValidity();
-    inline QOpenGLBuffer* getVertexBuffer(){ return &vertices; }
-    inline QOpenGLBuffer* getIndexBuffer(){ return &mesh->getGLData().indices; }
-    inline QOpenGLBuffer* getTextureCoords(){ return &mesh->getGLData().textureCoords; }
-
-    inline Material* getMaterial(){ return material; }
+    //void checkGLValidity();
 
 private:
-    int numIndices;
-    QOpenGLBuffer vertices;
+    unique_ptr<GLData> glData;
     Mesh* mesh;
     Material* material;
 
-    void ifBuffersNotCreatedCreateBuffers();
+    //void ifBuffersNotCreatedCreateBuffers();
 };
 
 class GLModel{
 public:
-    GLModel(std::vector<GLMesh> meshes, Model* model);
+    GLModel(std::vector<GLMesh> meshes);
     void update(Skeleton* skeleton);
     void render(QMatrix4x4& mvp_matrix);
-    void checkGLValidity();
+    //void checkGLValidity();
 
-    inline std::vector<GLMesh> getGLMeshes(){ return meshes; }
+    inline std::vector<GLMesh>& getGLMeshes(){ return meshes; }
 
 private:
     std::vector<GLMesh> meshes;
-    Model* model;
 };
 
 #endif // GLMESH_H

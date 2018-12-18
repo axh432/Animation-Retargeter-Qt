@@ -7,6 +7,24 @@
 #include "lib/md5/md5.h"
 #include "lib/md5/md5factory.h"
 
+class GraphicsCardSpace {
+
+public:
+    size_t vertexSpaceInBytes;
+    size_t indexSpaceInBytes;
+    size_t textureSpaceInBytes;
+
+    inline GraphicsCardSpace add(GraphicsCardSpace& other){
+        GraphicsCardSpace sum;
+
+        sum.indexSpaceInBytes = this->indexSpaceInBytes + other.indexSpaceInBytes;
+        sum.textureSpaceInBytes = this->textureSpaceInBytes + other.textureSpaceInBytes;
+        sum.vertexSpaceInBytes = this->vertexSpaceInBytes + other.vertexSpaceInBytes;
+
+        return sum;
+    }
+};
+
 class ResourceManager
 {
 public:
@@ -16,7 +34,9 @@ public:
 
     Anim* getAnim( QString animName );
 
-    unique_ptr<GLModel> createGLModel( QString modelName );
+    Model* getModel( QString modelName );
+
+   // unique_ptr<GLModel> createGLModel( QString modelName );
 
     void storeModel( DataBuffer* buffer, QString name );
 
@@ -24,14 +44,16 @@ public:
 
     void storeMaterial(DataBuffer& buffer);
 
+    GraphicsCardSpace computeGraphicsCardSpaceForModel( QString modelName );
+
 private:
-    QHash<QString, Material*> materials;
+    QHash<QString, size_t> materials;
     std::vector<Material> materialStorage;
 
-    QHash<QString, Model*> models;
+    QHash<QString, size_t> models;
     std::vector<Model> modelStorage;
 
-    QHash<QString, Anim*> anims;
+    QHash<QString, size_t> anims;
     std::vector<Anim> animStorage;
 
     unique_ptr<Md5Factory> md5Factory;

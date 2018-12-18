@@ -18,8 +18,8 @@ using std::unique_ptr;
 Engine::Engine() :
     camera(new Camera(QVector3D(0,0,0)))
 {
-    resourceManager.reset(new ResourceManager());
     initializeGL();
+    resourceManager.reset(new ResourceManager());
 }
 
 void Engine::initializeGL()
@@ -41,9 +41,9 @@ void Engine::createEntities(){
     loadModel(":/imp.md5mesh", "imp");
     loadAnim(":/evade_left.md5anim", "evade_left");
 
-    /*loadMaterial(":/fatty.mtr");
+    loadMaterial(":/fatty.mtr");
     loadModel(":/fatty.md5mesh", "fatty");
-    loadAnim(":/keycardgetup.md5anim", "keycardgetup");*/
+    loadAnim(":/walk1.md5anim", "walk1");
 
     QMatrix4x4 matrix;
     matrix.translate(0.0f, -35.0f, -150.0f);
@@ -53,8 +53,15 @@ void Engine::createEntities(){
     matrix2.translate(0.0f, -35.0f, -300.0f);
     matrix2.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
 
-    entity.reset(new Entity(resourceManager->createGLModel("imp"), resourceManager->getAnim("evade_left"), matrix));
-    //entity2.reset(new Entity(resourceManager->createGLModel("fatty"), resourceManager->getAnim("keycardgetup"), matrix2));
+    GraphicsCardSpace spaceForFatty = resourceManager->computeGraphicsCardSpaceForModel("fatty");
+    GraphicsCardSpace spaceForImp = resourceManager->computeGraphicsCardSpaceForModel("imp");
+
+    GraphicsCardSpace total = spaceForFatty.add(spaceForImp);
+
+    graphicsCardMemoryManager.reset(new GraphicsCardMemoryManager(total));
+
+    entity.reset(new Entity(graphicsCardMemoryManager->createGLModel("fatty", resourceManager.get()), resourceManager->getAnim("walk1"), matrix));
+    entity2.reset(new Entity(graphicsCardMemoryManager->createGLModel("imp", resourceManager.get()), resourceManager->getAnim("evade_left"), matrix2));
 }
 
 void Engine::loadResource(QString resourcePath, QString schemaPath, DataBuffer* buffer){
@@ -117,7 +124,9 @@ void Engine::updateEntities(double delta){
         entity->update(delta);
     }
 
-    //entity2->update(delta);
+    if(entity2.get()){
+        entity2->update(delta);
+    }
 
 }
 
@@ -200,6 +209,9 @@ void Engine::render()
         //entity->getModel()->checkGLValidity();
         entity->render(camera->getViewMatrix());
     }
-    //entity2->render(camera->getViewMatrix());
+
+    if(entity2.get()){
+        entity2->render(camera->getViewMatrix());
+    }
 
 }

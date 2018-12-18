@@ -1,15 +1,12 @@
 #include "glmesh.h"
 
-GLMesh::GLMesh(Mesh* mesh, Material* material): mesh(mesh), material(material), numIndices(mesh->getTris().size()){
+GLMesh::GLMesh(Mesh* mesh, unique_ptr<GLData> glData, Material* material): mesh(mesh), glData(std::move(glData)), material(material){
+
     initializeOpenGLFunctions();
-    if(vertices.create()){
-        qDebug() << this->mesh->getMaterialName() << " vertices buffer has been created";
-    }else{
-        qDebug() << this->mesh->getMaterialName() << " vertices buffer has not created";
-    }
+
 }
 
-void GLMesh::ifBuffersNotCreatedCreateBuffers(){
+/*void GLMesh::ifBuffersNotCreatedCreateBuffers(){
 
     QOpenGLBuffer* indices = getIndexBuffer();
     QOpenGLBuffer* textureCoords = getTextureCoords();
@@ -39,26 +36,22 @@ void GLMesh::ifBuffersNotCreatedCreateBuffers(){
         qDebug() << "vertexBuffer is recreated";
     }
 
-}
+}*/
 
-GLMesh::~GLMesh(){
-    vertices.destroy();
-}
 
 void GLMesh::update(Skeleton* skeleton){
 
-    std::vector<float> verts = mesh->computeGLVertices(skeleton);
+    std::vector<GLfloat> verts = mesh->computeGLVertices(skeleton);
 
-    //ifBuffersNotCreatedCreateBuffers();
+    QOpenGLBuffer* vertexBuffer = glData->vertexBuffer;
+    quintptr offset = glData->verticesPtr;
 
-    vertices.bind();
-    vertices.allocate(verts.data(), verts.size() * sizeof(float));
+    vertexBuffer->bind();
+    vertexBuffer->write(offset, verts.data(), verts.size() * sizeof(GLfloat));
 
-    qDebug() << "Update - vertexBuffer is created - " << this->mesh->getMaterialName() << ": " << vertices.isCreated();
-    qDebug() << "Update - vertexBuffer size - " << this->mesh->getMaterialName() << ": " << vertices.size();
 }
 
-void GLMesh::checkGLValidity(){
+/*void GLMesh::checkGLValidity(){
 
     qDebug() << this->mesh->getMaterialName();
 
@@ -108,7 +101,7 @@ void GLMesh::checkGLValidity(){
 
     qDebug() << "";
 
-}
+}*/
 
 void GLMesh::render(QMatrix4x4& mvp_matrix){
 
@@ -117,10 +110,12 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
         return;
     }
 
-    QOpenGLTexture* diffuse = this->material->getDiffuse();
-    QOpenGLShaderProgram* shader = this->material->getShader();
-    QOpenGLBuffer* indexBuffer = this->getIndexBuffer();
-    QOpenGLBuffer* texCoords = this->getTextureCoords();
+    this->glData;
+    QOpenGLTexture* diffuse = material->getDiffuse();
+    QOpenGLShaderProgram* shader = material->getShader();
+    QOpenGLBuffer* indexBuffer = glData->indexBuffer;
+    QOpenGLBuffer* textureBuffer = glData->textureBuffer;
+    QOpenGLBuffer* vertexBuffer = glData->vertexBuffer;
 
     shader->bind();
 
@@ -137,36 +132,33 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
     shader->setUniformValue("texture", 0);
 
     // Tell OpenGL which VBOs to use
-
-    ifBuffersNotCreatedCreateBuffers();
-
     indexBuffer->bind();
 
     qDebug() << "indexBuffer is created: " << indexBuffer->isCreated();
     qDebug() << "indexBuffer size: " << indexBuffer->size();
 
-    qDebug() << "vertexBuffer is created: " << vertices.isCreated();
-    qDebug() << "vertexBuffer size: " << vertices.size();
+    qDebug() << "vertexBuffer is created: " << vertexBuffer->isCreated();
+    qDebug() << "vertexBuffer size: " << vertexBuffer->size();
 
-    qDebug() << "texCoords is created: " << texCoords->isCreated();
-    qDebug() << "texCoords size: " << texCoords->size();
+    qDebug() << "textureBuffer is created: " << textureBuffer->isCreated();
+    qDebug() << "textureBuffer size: " << textureBuffer->size();
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
-    vertices.bind();
+    vertexBuffer->bind();
     int vertexLocation = shader->attributeLocation("a_position");
     shader->enableAttributeArray(vertexLocation);
-    shader->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, 0);
+    shader->setAttributeBuffer(vertexLocation, GL_FLOAT, glData->verticesPtr, 3, 0);
 
     // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
-    texCoords->bind();
+    textureBuffer->bind();
     int texcoordLocation = shader->attributeLocation("a_texcoord");
     shader->enableAttributeArray(texcoordLocation);
-    shader->setAttributeBuffer(texcoordLocation, GL_FLOAT, 0, 2, 0);
+    shader->setAttributeBuffer(texcoordLocation, GL_FLOAT, glData->texturePtr, 2, 0);
 
-    qDebug() << "numIndices: " << numIndices;
+    qDebug() << "numIndices: " << glData->numIndices;
 
     // Draw cube geometry using indices from VBO 1
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, glData->numIndices, GL_UNSIGNED_INT, (void*) glData->indicesPtr);
 
     //indexBuffer->release();
     //vertices.release();
@@ -176,15 +168,15 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
 
 
 //GLModel
-GLModel::GLModel(std::vector<GLMesh> meshes, Model* model): meshes(std::move(meshes)), model(model){/*empty*/}
+GLModel::GLModel(std::vector<GLMesh> meshes): meshes(std::move(meshes)){/*empty*/}
 
-void GLModel::checkGLValidity(){
+/*void GLModel::checkGLValidity(){
 
     for(int i = 0; i < meshes.size(); i++){
         meshes[i].checkGLValidity();
     }
 
-}
+}*/
 
 void GLModel::render(QMatrix4x4& mvp_matrix){
 

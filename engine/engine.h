@@ -17,6 +17,7 @@
 #include "material.h"
 #include "lib/TextProcessor/databuffer.h"
 #include "resourcemanager.h"
+#include "graphicscardmemorymanager.h"
 
 class Engine : protected QOpenGLFunctions {
 
@@ -45,6 +46,7 @@ private:
     unique_ptr<Entity> entity2;
     unique_ptr<Camera> camera;
     unique_ptr<ResourceManager> resourceManager;
+    unique_ptr<GraphicsCardMemoryManager> graphicsCardMemoryManager;
 };
 
 #endif

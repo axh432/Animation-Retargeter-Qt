@@ -24,5 +24,6 @@
         <file>fatty.mtr</file>
         <file>fatty.md5mesh</file>
         <file>keycardgetup.md5anim</file>
+	<file>walk1.md5anim</file>
     </qresource>
 </RCC>

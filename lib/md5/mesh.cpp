@@ -9,7 +9,7 @@
 
 Mesh::Mesh(
     QString         newMaterialName,
-    vector<float>   newTextureCoords,
+    vector<GLfloat>   newTextureCoords,
     vector<Vert>    newVerts,
     vector<GLuint>  newTris,
     vector<Weight>  newWeights
@@ -20,37 +20,14 @@ Mesh::Mesh(
     tris(std::move(newTris)),
     weights(std::move(newWeights)){
 
-
-
-
-    if(this->glData.indices.create()){
-        qDebug() << this->getMaterialName() << " indices buffer has been created";
-    }else{
-        qDebug() << this->getMaterialName() << " indices buffer has not created";
-    }
-
-    if(this->glData.textureCoords.create()){
-        qDebug() << this->getMaterialName() << " textureCoords buffer has been created";
-    }else{
-        qDebug() << this->getMaterialName() << " textureCoords buffer has not created";
-    }
-
-    this->glData.textureCoords.bind();
-    this->glData.textureCoords.allocate(textureCoords.data(), textureCoords.size() * sizeof(float));
-
-    this->glData.indices.bind();
-    this->glData.indices.allocate(tris.data(), tris.size() * sizeof(GLuint));
-
 }
 
 Mesh::~Mesh(){
-    this->glData.indices.destroy();
-    this->glData.textureCoords.destroy();
 }
 
-vector<float> Mesh::computeGLVertices(Skeleton* skeleton){
+vector<GLfloat> Mesh::computeGLVertices(Skeleton* skeleton){
 
-    vector<float> glvertices;
+    vector<GLfloat> glvertices;
     vector<Joint>& joints = skeleton->getJoints();
 
     this->getWeights();

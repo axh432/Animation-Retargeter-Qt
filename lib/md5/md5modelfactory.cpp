@@ -25,7 +25,7 @@ void Md5ModelFactory::buildModel(DataBuffer * buffer, QString name, std::vector<
     vector<Mesh> meshes = buildMeshes(buffer, headerRef);
 
     qDebug() << "Creating the model";
-    unique_ptr<Skeleton> skeleton(new Skeleton(joints));
+    unique_ptr<Skeleton> skeleton(new Skeleton(std::move(joints)));
 
     store.emplace_back(name, std::move(header), std::move(meshes), std::move(skeleton));
 }
@@ -85,11 +85,7 @@ vector<Mesh> Md5ModelFactory::buildMeshes(DataBuffer* buffer, ModelHeader& heade
 
     vector<Mesh> meshes;
 
-   /* for(int i = 0; i < header.numMeshes; i++){
-        buildMesh(buffer, meshes);
-    }*/
-
-    for(int i = 0; i < 1; i++){
+    for(int i = 0; i < header.numMeshes; i++){
         buildMesh(buffer, meshes);
     }
 
@@ -103,7 +99,7 @@ void Md5ModelFactory::buildMesh(DataBuffer* buffer, vector<Mesh>& meshes){
     vector<Vert> verts;
     vector<GLuint> tris;
     vector<Weight> weights;
-    vector<float> textureCoords;
+    vector<GLfloat> textureCoords;
 
     qDebug() << "building verts";
     buildVerts(buffer, verts, textureCoords);
@@ -115,7 +111,7 @@ void Md5ModelFactory::buildMesh(DataBuffer* buffer, vector<Mesh>& meshes){
     meshes.emplace_back(materialName, std::move(textureCoords), std::move(verts), std::move(tris), std::move(weights));
 }
 
-void Md5ModelFactory::buildVerts(DataBuffer* buffer, vector<Vert>& verts, vector<float>& textureCoords){
+void Md5ModelFactory::buildVerts(DataBuffer* buffer, vector<Vert>& verts, vector<GLfloat>& textureCoords){
     int numVerts = buffer->popInt();
 
     for(int i = 0; i < numVerts; i++){
@@ -124,7 +120,7 @@ void Md5ModelFactory::buildVerts(DataBuffer* buffer, vector<Vert>& verts, vector
 
 }
 
-void Md5ModelFactory::buildVert(DataBuffer* buffer, vector<Vert>& verts, vector<float>& textureCoords){
+void Md5ModelFactory::buildVert(DataBuffer* buffer, vector<Vert>& verts, vector<GLfloat>& textureCoords){
 
     //try catch
     int index = buffer->popInt();

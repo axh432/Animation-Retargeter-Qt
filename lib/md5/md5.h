@@ -94,19 +94,11 @@ private:
     vector<Joint> joints;
 };
 
-struct GLData
-{
-public:
-    GLData(): indices(QOpenGLBuffer::IndexBuffer){}
-    QOpenGLBuffer textureCoords;
-    QOpenGLBuffer indices;
-};
-
 class Mesh {
 public:
     Mesh(
         QString newMaterialName,
-        vector<float>   newTextureCoords,
+        vector<GLfloat>   newTextureCoords,
         vector<Vert>    newVerts,
         vector<GLuint>  newTris,
         vector<Weight>  newWeights
@@ -117,10 +109,9 @@ public:
      //TODO: this needs input validation with a static factory method
     inline QString&         getMaterialName(){ return materialName; }
     inline vector<GLuint>&  getTris(){ return tris; }
-    inline vector<float>&   getTextureCoords(){ return textureCoords; }
+    inline vector<GLfloat>&   getTextureCoords(){ return textureCoords; }
     inline vector<Vert>&    getVerts(){ return verts; }
     inline vector<Weight>&  getWeights(){ return weights; }
-    inline GLData&          getGLData(){ return glData; }
 
     vector<float>   computeGLVertices(Skeleton* skel);
 
@@ -130,8 +121,6 @@ private:
     vector<GLuint>  tris;
     vector<Weight>  weights;
     vector<float>   textureCoords;
-
-    struct GLData glData;
 };
 
 //Animation
