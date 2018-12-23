@@ -65,9 +65,16 @@ void Engine::createEntities(){
     //entity2.reset(new Entity(graphicsCardMemoryManager->createGLModel("imp", resourceManager.get()), resourceManager->getAnim("evade_left"), matrix2));
 
     Skeleton* fattyBindPose = resourceManager->getModel("fatty")->bindPose.get();
+    Skeleton* frame10 = &(entity->getAnim()->skeletons[10]);
 
-    entity->freezeWithSkeleton(&(entity->getAnim()->skeletons[10]));
-    entity2->freezeWithSkeleton(fattyBindPose);
+    fattyBindPose->recomputeLocalSpace();
+    vector<QQuaternion> rotations = Skeleton::getRotationalDifference(fattyBindPose, frame10);
+    fattyBindPose->applyRotations(rotations);
+    fattyBindPose->recomputeObjectSpace();
+
+    //entity->freezeWithSkeleton();
+    entity->freezeWithSkeleton(fattyBindPose);
+    entity2->freezeWithSkeleton(frame10);
 }
 
 void Engine::loadResource(QString resourcePath, QString schemaPath, DataBuffer* buffer){

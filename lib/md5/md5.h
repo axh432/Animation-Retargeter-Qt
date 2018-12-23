@@ -78,6 +78,11 @@ public:
                                           << ", OO-" << objectOrient;
                                }
 
+    inline void printLocal(){ qDebug() << name << ": "
+                                          << ", localPos-" << localPos
+                                          << ", localOrient-" << localOrient;
+                               }
+
     QString name;
     int parent;
     QVector3D localPos;
@@ -95,9 +100,14 @@ public:
     //TODO: this needs input validation with a static factory method
     vector<Joint>& getJoints(){ return joints; }
     void recomputeObjectSpace();
+    void recomputeLocalSpace();
+    void testRecomputeLocalSpace();
+    void printOutLocalJoints();
+    void applyRotations(vector<QQuaternion>& rotations);
     static QVector3D vectorSubtract(QVector3D left, QVector3D right);
     static unique_ptr<Skeleton> interpolateSkeletons(Skeleton& previous, Skeleton& next, float interpolation);
-    static vector<QQuaternion> getRotationalDifference(Skeleton* left, Skeleton* right);
+    static vector<QQuaternion> getRotationalDifference(Skeleton* from, Skeleton* to);
+    static void getPositionalDifference(Skeleton* from, Skeleton* to);
 
 private:
     vector<Joint> joints;
