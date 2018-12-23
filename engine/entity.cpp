@@ -7,17 +7,94 @@ Entity::Entity(unique_ptr<GLModel> modelRef, Anim* animRef, QMatrix4x4 matrix):
     nextFrame(0),
     model(std::move(modelRef)),
     anim(animRef),
-    positionOrientation(matrix)
+    positionOrientation(matrix),
+    frozen(false),
+    frozenSkeleton(nullptr)
 {
+    initializeOpenGLFunctions();
 }
 
 void Entity::render(QMatrix4x4& view){
     QMatrix4x4 viewPosition = view * positionOrientation;
 
     model->render(viewPosition);
+
+    if(frozen){
+        renderSkeleton(viewPosition);
+    }
+}
+
+vector<GLfloat> Entity::vectorToGLFloats(QVector3D vector3d){
+
+    vector<GLfloat> glFloats;
+
+    glFloats.push_back(vector3d.x());
+    glFloats.push_back(vector3d.y());
+    glFloats.push_back(vector3d.z());
+
+    return glFloats;
+}
+
+void Entity::renderSkeleton(QMatrix4x4& viewPosition){
+
+    vector<Joint>& joints = frozenSkeleton->getJoints();
+    int numJoints = joints.size();
+
+    glPointSize( 8.0f );
+    glColor3f( 0.0f, 1.0f, 0.0f );
+
+    glPushAttrib( GL_ENABLE_BIT );
+
+    glDisable(GL_LIGHTING );
+    glDisable( GL_DEPTH_TEST );
+
+    // Draw the joint positions
+    glBegin( GL_POINTS );
+    {
+        for ( int i = 0; i < numJoints; i++ )
+        {
+            glVertex3fv(vectorToGLFloats((viewPosition *joints[i].objectPos)).data());
+        }
+    }
+    glEnd();
+
+    // Draw the bones
+    glColor3f( 0.0f, 1.0f, 0.0f );
+    glBegin( GL_LINES );
+    {
+        for ( int i = 0; i < numJoints; i++ )
+        {
+            Joint& joint = joints[i];
+            int parentIndex = joints[i].parent;
+
+            if ( parentIndex > -1 )
+            {
+                Joint& parent = joints[parentIndex];
+                glVertex3fv(vectorToGLFloats(viewPosition * joint.objectPos).data());
+                glVertex3fv(vectorToGLFloats(viewPosition * parent.objectPos).data());
+            }
+        }
+    }
+    glEnd();
+
+    glPopAttrib();
+
+}
+
+void Entity::freezeWithSkeleton(Skeleton* skeleton){
+
+    model->update(skeleton);
+    frozen = true;
+    frozenSkeleton = skeleton;
+
 }
 
 void Entity::update(double delta){
+
+    //if we are frozen then there is no need to update.
+    if(frozen){
+        return;
+    }
 
     this->getModel();
 

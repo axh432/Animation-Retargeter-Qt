@@ -19,6 +19,42 @@ QVector3D Skeleton::vectorSubtract(QVector3D left, QVector3D right){
     return result;
 }
 
+//requires that both skeletons are from the same model
+vector<QQuaternion> Skeleton::getRotationalDifference(Skeleton* from, Skeleton* to){
+
+    vector<QQuaternion> rotations;
+
+    vector<Joint>& fromJoints = from->getJoints();
+    vector<Joint>& toJoints = to->getJoints();
+
+    int numJoints = fromJoints.size();
+
+    for (int i = 1; i < numJoints; i++)
+      {
+        Joint& fromJoint = fromJoints[i];
+
+        int parentIndex = fromJoint.parent;
+
+        if(parentIndex < 0){
+            continue;
+        }
+
+        Joint& fromParent = fromJoints[fromJoint.parent];
+
+        Joint& toJoint = toJoints[i];
+        Joint& toParent = toJoints[toJoint.parent];
+
+        QVector3D startPos = fromJoint.objectPos - fromParent.objectPos;
+        QVector3D endPos = toJoint.objectPos - toParent.objectPos;
+
+        rotations.push_back(QQuaternion::rotationTo(startPos, endPos));
+
+    }
+
+    return rotations;
+
+}
+
 unique_ptr<Skeleton> Skeleton::interpolateSkeletons(Skeleton& previous, Skeleton& next, float interpolation){
 
     vector<Joint>& previousJoints = previous.getJoints();
@@ -81,6 +117,7 @@ void Skeleton::recomputeObjectSpace() {
 
         }
 
-        //else objectPos and orient are the same as local pos and orient.
+        current.printContents();
+        //else object pos and orient are the same as local pos and orient.
     }
 }

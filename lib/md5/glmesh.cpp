@@ -110,7 +110,6 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
         return;
     }
 
-    this->glData;
     QOpenGLTexture* diffuse = material->getDiffuse();
     QOpenGLShaderProgram* shader = material->getShader();
     QOpenGLBuffer* indexBuffer = glData->indexBuffer;
@@ -160,9 +159,11 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, glData->numIndices, GL_UNSIGNED_INT, (void*) glData->indicesPtr);
 
-    //indexBuffer->release();
-    //vertices.release();
-    //texCoords->release();
+    indexBuffer->release();
+    textureBuffer->release();
+    vertexBuffer->release();
+    shader->release();
+    diffuse->release();
 
 }
 

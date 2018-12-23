@@ -37,9 +37,9 @@ void Engine::initializeGL()
 }
 
 void Engine::createEntities(){
-    loadMaterial(":/imp.mtr");
+    /*loadMaterial(":/imp.mtr");
     loadModel(":/imp.md5mesh", "imp");
-    loadAnim(":/evade_left.md5anim", "evade_left");
+    loadAnim(":/evade_left.md5anim", "evade_left");*/
 
     loadMaterial(":/fatty.mtr");
     loadModel(":/fatty.md5mesh", "fatty");
@@ -50,18 +50,24 @@ void Engine::createEntities(){
     matrix.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
 
     QMatrix4x4 matrix2;
-    matrix2.translate(0.0f, -35.0f, -300.0f);
+    matrix2.translate(0.0f, -35.0f, -200.0f);
     matrix2.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
 
     GraphicsCardSpace spaceForFatty = resourceManager->computeGraphicsCardSpaceForModel("fatty");
-    GraphicsCardSpace spaceForImp = resourceManager->computeGraphicsCardSpaceForModel("imp");
+    //GraphicsCardSpace spaceForImp = resourceManager->computeGraphicsCardSpaceForModel("imp");
 
-    GraphicsCardSpace total = spaceForFatty.add(spaceForImp);
+    GraphicsCardSpace total = spaceForFatty.add(spaceForFatty);
 
     graphicsCardMemoryManager.reset(new GraphicsCardMemoryManager(total));
 
     entity.reset(new Entity(graphicsCardMemoryManager->createGLModel("fatty", resourceManager.get()), resourceManager->getAnim("walk1"), matrix));
-    entity2.reset(new Entity(graphicsCardMemoryManager->createGLModel("imp", resourceManager.get()), resourceManager->getAnim("evade_left"), matrix2));
+    entity2.reset(new Entity(graphicsCardMemoryManager->createGLModel("fatty", resourceManager.get()), resourceManager->getAnim("walk1"), matrix2));
+    //entity2.reset(new Entity(graphicsCardMemoryManager->createGLModel("imp", resourceManager.get()), resourceManager->getAnim("evade_left"), matrix2));
+
+    Skeleton* fattyBindPose = resourceManager->getModel("fatty")->bindPose.get();
+
+    entity->freezeWithSkeleton(&(entity->getAnim()->skeletons[10]));
+    entity2->freezeWithSkeleton(fattyBindPose);
 }
 
 void Engine::loadResource(QString resourcePath, QString schemaPath, DataBuffer* buffer){

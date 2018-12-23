@@ -1,0 +1,13 @@
+"models/monsters/zombie/fatty/fatty"
+{
+	alias		"none"
+	type		"flesh"
+	
+	vertshader		":/shaders/vshader.glsl"
+	fragshader		":/shaders/fshader.glsl"
+
+    diffusemap		":/textures/fatty_d.tga"
+    localmap		""
+	heightmap		""
+	specularmap		""
+}

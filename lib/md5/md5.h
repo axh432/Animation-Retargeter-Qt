@@ -70,6 +70,14 @@ public:
         objectOrient(newLocalOrient)
         { /*empty*/ }
 
+    inline void printContents(){ qDebug() << name << ": "
+                                          << parent
+                                          << ", LP-" << localPos
+                                          << ", LO-" << localOrient
+                                          << ", OP-" << objectPos
+                                          << ", OO-" << objectOrient;
+                               }
+
     QString name;
     int parent;
     QVector3D localPos;
@@ -89,6 +97,7 @@ public:
     void recomputeObjectSpace();
     static QVector3D vectorSubtract(QVector3D left, QVector3D right);
     static unique_ptr<Skeleton> interpolateSkeletons(Skeleton& previous, Skeleton& next, float interpolation);
+    static vector<QQuaternion> getRotationalDifference(Skeleton* left, Skeleton* right);
 
 private:
     vector<Joint> joints;
