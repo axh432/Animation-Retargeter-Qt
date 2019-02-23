@@ -29,6 +29,8 @@ private slots:
     inline void openDestModelFile(){ onOpenFile(tr("Open Model"), tr("MD5 mesh files (*.md5mesh)"), DestMeshLine); }
     inline void openDestMaterialFile(){ onOpenFile(tr("Open Material"), tr("MTR files (*.mtr)"), DestMatLine); }
 
+    void populateWithDefaultValues();
+
     void onDone();
 
 private:

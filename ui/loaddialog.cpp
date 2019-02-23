@@ -37,13 +37,18 @@ LoadDialog::LoadDialog(QWidget *parent, GLWidget *glWidget):
     DestMatLine->clear();
 
     QPushButton *cancelButton = new QPushButton("Cancel", this);
+
+    QPushButton *defaultValuesButton = new QPushButton("Default Values", this);
+
     QPushButton *doneButton = new QPushButton("Done", this);
 
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(defaultValuesButton, SIGNAL(clicked()), this, SLOT(populateWithDefaultValues()));
     connect(doneButton, SIGNAL(clicked()), this, SLOT(onDone()));
 
     //done/cancel
     mainLayout->addWidget(cancelButton, 5, 0);
+    mainLayout->addWidget(defaultValuesButton, 5, 1);
     mainLayout->addWidget(doneButton, 5, 2);
 
     //resize(700, 300);
@@ -117,6 +122,14 @@ void LoadDialog::onOpenFile(QString title, QString fileType, QLineEdit * line){
         line->clear();
         line->setText(filename);
     }
+}
+
+void LoadDialog::populateWithDefaultValues(){
+    SourceMeshLine->setText("/Users/Alex/Documents/QtProjects/RenderWindow/resources/fatty.md5mesh");
+    SourceMatLine->setText("/Users/Alex/Documents/QtProjects/RenderWindow/resources/fatty.mtr");
+    SourceAnimLine->setText("/Users/Alex/Documents/QtProjects/RenderWindow/resources/walk1.md5anim");
+    DestMeshLine->setText("/Users/Alex/Documents/QtProjects/RenderWindow/resources/imp.md5mesh");
+    DestMatLine->setText("/Users/Alex/Documents/QtProjects/RenderWindow/resources/imp.mtr");
 }
 
 void LoadDialog::onDone(){
