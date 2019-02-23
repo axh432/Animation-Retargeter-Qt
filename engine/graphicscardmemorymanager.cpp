@@ -94,7 +94,7 @@ quintptr GraphicsCardMemoryManager::storeVertsOnGraphicsCard(vector<GLfloat> ver
 
 }
 
-unique_ptr<GLModel> GraphicsCardMemoryManager::createGLModel( QString modelName, ResourceManager* resourceManager ){
+shared_ptr<GLModel> GraphicsCardMemoryManager::createGLModel( QString modelName, ResourceManager* resourceManager ){
 
     Model* model = resourceManager->getModel(modelName);
 
@@ -114,7 +114,7 @@ unique_ptr<GLModel> GraphicsCardMemoryManager::createGLModel( QString modelName,
         glmeshes.emplace_back(mesh, std::move(glData), material);
     }
 
-    unique_ptr<GLModel> glModel(new GLModel(std::move(glmeshes)));
+    shared_ptr<GLModel> glModel(new GLModel(std::move(glmeshes), bindPose));
 
-    return std::move(glModel);
+    return glModel;
 }

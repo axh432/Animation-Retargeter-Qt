@@ -6,8 +6,8 @@
 	vertshader		":/shaders/vshader.glsl"
 	fragshader		":/shaders/fshader.glsl"
 
-    diffusemap		":/textures/fatty_d.tga"
-    localmap		""
+        diffusemap		":/textures/fatty_d.tga"
+        localmap		""
 	heightmap		""
 	specularmap		""
 }

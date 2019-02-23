@@ -18,6 +18,9 @@
 #include "lib/TextProcessor/databuffer.h"
 #include "resourcemanager.h"
 #include "graphicscardmemorymanager.h"
+#include "entityresourcepaths.h"
+#include "ui/commands.h"
+
 
 class Engine : protected QOpenGLFunctions {
 
@@ -28,7 +31,11 @@ public:
     void resize(int w, int h);
     void updateWorld(qint64 delta);
     void handleKeyEvent(QKeyEvent *e);
-    void createEntities();
+    void createEntities(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths);
+    void changeSourceAnimState(AnimState newState);
+    void changeDestinationAnimState(AnimState newState);
+    void changeSourceVisualState(VisualState newState);
+    void changeDestinationVisualState(VisualState newState);
 
 private:
     void initializeGL();
@@ -40,10 +47,20 @@ private:
     unique_ptr<QOpenGLShaderProgram> createShaderProgram(QString vertexShaderPath, QString fragmentShaderPath);
     unique_ptr<QOpenGLTexture> loadTexture(QString texturePath);
     void createMaterial(DataBuffer& buffer);
+    void createStringMapping();
+    void printMappings(Skeleton* from, Skeleton* to);
+    vector<int> createMappings(Skeleton* from);
+    QString findClosestToName(QString name, vector<QString>& potentialMatches);
+    void loadEntityResources(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths);
+    void createGraphicsCardSpaceForEntities(QString& sourceModelName, QString& destinationModelName);
+    void setEntities(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths);
+    QMatrix4x4 createDestinationPosition();
+    QMatrix4x4 createSourcePosition();
 
 private:
-    unique_ptr<Entity> entity;
-    unique_ptr<Entity> entity2;
+    unique_ptr<Entity> source;
+    unique_ptr<Entity> destination;
+    unique_ptr<Skeleton> copy;
     unique_ptr<Camera> camera;
     unique_ptr<ResourceManager> resourceManager;
     unique_ptr<GraphicsCardMemoryManager> graphicsCardMemoryManager;

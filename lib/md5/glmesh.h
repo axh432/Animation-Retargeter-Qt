@@ -25,15 +25,17 @@ private:
 
 class GLModel{
 public:
-    GLModel(std::vector<GLMesh> meshes);
+    GLModel(std::vector<GLMesh> meshes, Skeleton* bindPose);
     void update(Skeleton* skeleton);
     void render(QMatrix4x4& mvp_matrix);
     //void checkGLValidity();
 
     inline std::vector<GLMesh>& getGLMeshes(){ return meshes; }
+    inline Skeleton* getBindPose() { return bindPose; }
 
 private:
     std::vector<GLMesh> meshes;
+    Skeleton* bindPose;
 };
 
 #endif // GLMESH_H

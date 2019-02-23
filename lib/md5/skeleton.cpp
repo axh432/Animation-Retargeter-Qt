@@ -8,101 +8,107 @@
 using std::vector;
 using std::unique_ptr;
 
-QVector3D Skeleton::vectorSubtract(QVector3D left, QVector3D right){
-
-    QVector3D result;
-
-    result.setX(left.x() - right.x());
-    result.setY(left.y() - right.y());
-    result.setZ(left.z() - right.z());
-
-    return result;
+Skeleton::Skeleton(vector<Joint> newJoints):
+    joints(std::move(newJoints))
+{
+    for(int i = 0; i < joints.size(); i++){
+        jointMap.insert(joints[i].name, i);
+    }
 }
 
-void Skeleton::applyRotations(vector<QQuaternion>& rotations){
+Skeleton::Skeleton(const Skeleton& original){
+    this->joints = original.joints;
 
-    for(int i = 0; i < rotations.size(); i++){
-
-        joints[i].localOrient = rotations[i] * joints[i].localOrient;
-
+    for(int i = 0; i < joints.size(); i++){
+        jointMap.insert(joints[i].name, i);
     }
 
 }
 
-//requires that both skeletons are from the same model
-void Skeleton::getPositionalDifference(Skeleton* from, Skeleton* to){
+Skeleton::Skeleton(const Skeleton* original){
+    this->joints = original->joints;
+
+    for(int i = 0; i < joints.size(); i++){
+        jointMap.insert(joints[i].name, i);
+    }
+}
+
+int Skeleton::getJointIndex(QString name){
+
+    if(jointMap.contains(name)){
+        return jointMap.find(name).value();
+    }else{
+        return -1;
+    }
+}
+
+void Skeleton::applyModificationsDifferentSkeleton(vector<JointModification>& jointMods, vector<int>& mappings){
+
+    for(int i = 0; i < mappings.size(); i++){
+
+        int fromJointIndex = mappings[i];
+
+        if(fromJointIndex != -1){
+            joints[i].localOrient = jointMods[fromJointIndex].rotation * joints[i].localOrient;
+            joints[i].localPos  = jointMods[fromJointIndex].translation + joints[i].localPos;
+        }
+
+    }
+
+    recomputeObjectSpace();
+}
+
+void Skeleton::applyModifications(vector<JointModification>& jointMods){
+
+    for(int i = 0; i < jointMods.size(); i++){
+
+        joints[i].localOrient = jointMods[i].rotation * joints[i].localOrient;
+        joints[i].localPos  = jointMods[i].translation + joints[i].localPos;
+
+    }
+
+    recomputeObjectSpace();
+}
+
+vector<JointModification> Skeleton::getDifferences(Skeleton* from, Skeleton* to){
 
     vector<Joint>& fromJoints = from->getJoints();
     vector<Joint>& toJoints = to->getJoints();
 
-    vector<QVector3D> differences;
+    vector<JointModification> differences;
 
     int numJoints = fromJoints.size();
-
-    qDebug() << "Pos Difference";
 
     for (int i = 0; i < numJoints; i++){
 
-        QVector3D& fromPos = fromJoints[i].localPos;
-        QVector3D& toPos = toJoints[i].localPos;
+        Joint& fromJoint = fromJoints[i];
+        Joint& toJoint = toJoints[i];
 
-        QVector3D difference = toPos - fromPos;
-
-        QVector3D test = difference + fromPos;
-
-        differences.push_back(test);
+        differences.emplace_back(getRotationalDifference(fromJoint, toJoint), getTranslationalDifference(fromJoint, toJoint));
 
     }
 
+    return differences;
 }
 
-//requires that both skeletons are from the same model
-vector<QQuaternion> Skeleton::getRotationalDifference(Skeleton* from, Skeleton* to){
+QVector3D Skeleton::getTranslationalDifference(Joint& from, Joint& to){
 
-    vector<QQuaternion> rotations;
+    QVector3D& fromPos = from.localPos;
+    QVector3D& toPos = to.localPos;
 
-    vector<Joint>& fromJoints = from->getJoints();
-    vector<Joint>& toJoints = to->getJoints();
+    //return toPos - fromPos;
+    return QVector3D();
+}
 
-    int numJoints = fromJoints.size();
+QQuaternion Skeleton::getRotationalDifference(Joint& from, Joint& to){
 
-    for (int i = 0; i < numJoints; i++)
-      {
-        /*
-         * you would have to use the local orient because when you change the
-         * orientation of a parent you change the object orient of the child
-         * and you will always be changing the parent orient
-         */
-        QQuaternion& fromOrient = fromJoints[i].localOrient;
-        QQuaternion& toOrient = toJoints[i].localOrient;
+    QQuaternion& fromOrient = from.localOrient;
+    QQuaternion& toOrient = to.localOrient;
 
-        QQuaternion difference = toOrient * fromOrient.inverted();
-        difference.normalize();
+    QQuaternion difference = toOrient * fromOrient.inverted();
+    difference.normalize();
 
-        QQuaternion testOrient = difference * fromOrient;
-
-        rotations.push_back(difference);
-
-        /*int parentIndex = fromJoint.parent;
-
-        if(parentIndex < 0){
-            continue;
-        }
-
-        Joint& fromParent = fromJoints[fromJoint.parent];
-
-        Joint& toJoint = toJoints[i];
-        Joint& toParent = toJoints[toJoint.parent];
-
-        QVector3D startPos = fromJoint.objectPos - fromParent.objectPos;
-        QVector3D endPos = toJoint.objectPos - toParent.objectPos;
-
-        rotations.push_back(QQuaternion::rotationTo(startPos, endPos));*/
-
-    }
-
-    return rotations;
-
+    return difference;
 }
 
 unique_ptr<Skeleton> Skeleton::interpolateSkeletons(Skeleton& previous, Skeleton& next, float interpolation){
@@ -127,7 +133,7 @@ unique_ptr<Skeleton> Skeleton::interpolateSkeletons(Skeleton& previous, Skeleton
         //linear interp for pos
         QVector3D position = previousPosition;
 
-        QVector3D vectorToNext = Skeleton::vectorSubtract(nextPosition, previousPosition);
+        QVector3D vectorToNext = nextPosition - previousPosition;
 
         vectorToNext *= interpolation;
 
@@ -139,31 +145,7 @@ unique_ptr<Skeleton> Skeleton::interpolateSkeletons(Skeleton& previous, Skeleton
         newJoints.emplace_back(position, orient);
       }
 
-    return unique_ptr<Skeleton>(new Skeleton(newJoints));
-}
-
-void Skeleton::testRecomputeLocalSpace(){
-
-    vector<Joint> newJoints = joints;
-
-    Skeleton copySkeleton(newJoints);
-
-    qDebug() << "--- Pre Local Space ---";
-    copySkeleton.printOutLocalJoints();
-
-    copySkeleton.recomputeLocalSpace();
-
-    qDebug() << "--- Post Local Space ---";
-    copySkeleton.printOutLocalJoints();
-
-}
-
-void Skeleton::printOutLocalJoints(){
-
-    for(int i = 0; i < joints.size(); i++){
-        joints[i].printLocal();
-    }
-
+    return std::move(unique_ptr<Skeleton>(new Skeleton(newJoints)));
 }
 
 void Skeleton::recomputeLocalSpace(){
@@ -191,7 +173,7 @@ void Skeleton::recomputeLocalSpace(){
 
         }
 
-        //else object pos and orient are the same as local pos and orient.
+        //else local pos and orient are the same as object pos and orient.
     }
 
 }
@@ -220,8 +202,6 @@ void Skeleton::recomputeObjectSpace() {
             current.objectOrient.normalize(); //this is left in, in david henry's code
 
         }
-
-        current.printContents();
         //else object pos and orient are the same as local pos and orient.
     }
 }

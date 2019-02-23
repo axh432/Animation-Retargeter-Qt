@@ -49,6 +49,15 @@ public:
     QVector3D pos;
 };
 
+struct JointModification {
+
+    JointModification(QQuaternion newRotation, QVector3D newTranslation):
+        translation(newTranslation), rotation(newRotation){ }
+    QQuaternion rotation;
+    QVector3D translation;
+
+};
+
 struct Joint{
 public:
     Joint(QVector3D pos, QQuaternion orient):
@@ -93,24 +102,30 @@ public:
 
 class Skeleton {
 public:
-    Skeleton(vector<Joint> newJoints):
-        joints(std::move(newJoints))
-    {/*empty*/}
+    Skeleton(vector<Joint> newJoints);
 
-    //TODO: this needs input validation with a static factory method
+    Skeleton(const Skeleton& original);
+
+    Skeleton(const Skeleton* original);
+
     vector<Joint>& getJoints(){ return joints; }
+    int getJointIndex(QString name);
     void recomputeObjectSpace();
     void recomputeLocalSpace();
-    void testRecomputeLocalSpace();
-    void printOutLocalJoints();
-    void applyRotations(vector<QQuaternion>& rotations);
-    static QVector3D vectorSubtract(QVector3D left, QVector3D right);
+
+    void applyModifications(vector<JointModification>& jointMods);
+    void applyModificationsDifferentSkeleton(vector<JointModification>& jointMods, vector<int>& mappings);
+    static vector<JointModification> getDifferences(Skeleton* from, Skeleton* to);
+
     static unique_ptr<Skeleton> interpolateSkeletons(Skeleton& previous, Skeleton& next, float interpolation);
-    static vector<QQuaternion> getRotationalDifference(Skeleton* from, Skeleton* to);
-    static void getPositionalDifference(Skeleton* from, Skeleton* to);
 
 private:
     vector<Joint> joints;
+    QHash<QString, size_t> jointMap;
+
+    static QQuaternion getRotationalDifference(Joint& from, Joint& to);
+    static QVector3D getTranslationalDifference(Joint& from, Joint& to);
+
 };
 
 class Mesh {
@@ -219,12 +234,6 @@ public:
     unique_ptr<Skeleton> bindPose;
 };
 
-/*struct AnimInfo{
-    int currentFrame;
-    int nextFrame;
-    double lastTime;
-    double maxTime;
-};*/
 
 
 #endif // MD5_H

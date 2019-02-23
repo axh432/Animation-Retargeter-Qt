@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "glwidget.h"
+#include "loaddialog.h"
 #include <QMenuBar>
 #include <QMenu>
 #include <QMessageBox>
@@ -18,24 +19,60 @@ MainWindow::MainWindow(QApplication * newApp):
     QMenuBar *menuBar = new QMenuBar(this);
     QMenu * fileMenu = menuBar->addMenu(tr("&File"));
     QMenu * animMenu = menuBar->addMenu(tr("&Animation"));
+    QMenu * viewMenu = menuBar->addMenu(tr("&View"));
 
     //File menu
-    QAction * openFromMesh = new QAction(tr("&Open From Mesh"), this);
-    connect(openFromMesh, SIGNAL(triggered()), this, SLOT(onOpenFromMesh()));
+    QAction * newScene = new QAction(tr("&New Scene"), this);
+    QAction * retargetAnim =    new QAction(tr("&Retarget Animation"), this);
+    QAction * exitAct =         new QAction(tr("&Exit"), this);
 
-    QAction * openToMesh = new QAction(tr("&Open To Mesh"), this);
-    connect(openToMesh, SIGNAL(triggered()), this, SLOT(onOpenToMesh()));
+    connect(newScene, SIGNAL(triggered()), this, SLOT(onNewScene()));
+    connect(retargetAnim,   SIGNAL(triggered()), this, SLOT(retargetAnim()));
+    connect(exitAct,        SIGNAL(triggered()), this, SLOT(endSession()));
 
-    QAction * openAnim = new QAction(tr("&Open Animation"), this);
-    connect(openAnim, SIGNAL(triggered()), this, SLOT(onOpenAnimation()));
-
-    QAction * exitAct = new QAction(tr("&Exit"), this);
-    connect(exitAct, SIGNAL(triggered()), this, SLOT(endSession()));
-
-    fileMenu->addAction(openFromMesh);
-    fileMenu->addAction(openToMesh);
-    fileMenu->addAction(openAnim);
+    fileMenu->addAction(newScene);
+    fileMenu->addAction(retargetAnim);
     fileMenu->addAction(exitAct);
+
+    //Animation menu
+    QAction * playSource = new QAction(tr("&Play Source"), this);
+    QAction * playDest = new QAction(tr("&Play Destination"), this);
+    QAction * bindSource = new QAction(tr("&Bind Pose Source"), this);
+    QAction * bindDest = new QAction(tr("&Bind Pose Destination"), this);
+    QAction * pauseSource = new QAction(tr("&Pause Source"), this);
+    QAction * pauseDest = new QAction(tr("&Pause Destination"), this);
+
+    QAction * hideSource = new QAction(tr("&Hide Source"), this);
+    QAction * hideDest = new QAction(tr("&Hide Destination"), this);
+    QAction * showSource = new QAction(tr("&Show Source"), this);
+    QAction * showDest = new QAction(tr("&Show Destination"), this);
+
+    connect(playSource, SIGNAL(triggered()), this, SLOT(receiveAnimCommandPlaySource()));
+    connect(playDest, SIGNAL(triggered()), this, SLOT(receiveAnimCommandPlayDest()));
+    connect(bindSource, SIGNAL(triggered()), this, SLOT(receiveAnimCommandBindSource()));
+    connect(bindDest, SIGNAL(triggered()), this, SLOT(receiveAnimCommandBindDest()));;
+    connect(pauseSource, SIGNAL(triggered()), this, SLOT(receiveAnimCommandPauseSource()));
+    connect(pauseDest, SIGNAL(triggered()), this, SLOT(receiveAnimCommandPauseDest()));
+
+    connect(hideSource, SIGNAL(triggered()), this, SLOT(receiveViewCommandHideSource()));
+    connect(hideDest, SIGNAL(triggered()), this, SLOT(receiveViewCommandHideDest()));
+    connect(hideSource, SIGNAL(triggered()), this, SLOT(receiveViewCommandShowSource()));
+    connect(hideDest, SIGNAL(triggered()), this, SLOT(receiveViewCommandShowDest()));
+
+
+    animMenu->addAction(playSource);
+    animMenu->addAction(pauseSource);
+    animMenu->addAction(bindSource);
+    animMenu->addSeparator();
+    animMenu->addAction(playDest);
+    animMenu->addAction(pauseDest);
+    animMenu->addAction(bindDest);
+
+    viewMenu->addAction(showSource);
+    viewMenu->addAction(hideSource);
+    viewMenu->addSeparator();
+    viewMenu->addAction(showDest);
+    viewMenu->addAction(hideDest);
 
     setMenuBar(menuBar);
     setCentralWidget(glWidget.get());
@@ -51,36 +88,62 @@ void MainWindow::endSession(){
     running = false;
 }
 
-
-void MainWindow::onOpenToMesh(){
-    /*LoadDialog *dialog = new LoadDialog(this, engine, TO);
-    dialog->exec();
-    window->resetRetargetWidgets();*/
-    
-    std::cout << "Open Destination Mesh" << std::endl;
+void MainWindow::receiveAnimCommandPlaySource(){
+    glWidget->changeSourceAnimState(AnimState::PLAY);
 }
 
-void MainWindow::onOpenAnimation(){
-    /*LoadDialog * dialog = new LoadDialog(this, engine, ANIM);
-    dialog->exec();
-    window->resetRetargetWidgets();*/
-    
-    std::cout << "Open Animation" << std::endl;
+void MainWindow::receiveAnimCommandPlayDest(){
+    glWidget->changeDestinationAnimState(AnimState::PLAY);
 }
 
-void MainWindow::onOpenFromMesh(){
-    /*LoadDialog *dialog = new LoadDialog(this, engine, FROM);
+void MainWindow::receiveAnimCommandPauseSource(){
+    glWidget->changeSourceAnimState(AnimState::PAUSE);
+}
+
+void MainWindow::receiveAnimCommandPauseDest(){
+    glWidget->changeDestinationAnimState(AnimState::PAUSE);
+}
+
+void MainWindow::receiveAnimCommandBindSource(){
+    glWidget->changeSourceAnimState(AnimState::BINDPOSE);
+}
+
+void MainWindow::receiveAnimCommandBindDest(){
+    glWidget->changeDestinationAnimState(AnimState::BINDPOSE);
+}
+
+void MainWindow::receiveViewCommandHideSource(){
+    glWidget->changeSourceVisualState(VisualState::HIDDEN);
+}
+
+void MainWindow::receiveViewCommandHideDest(){
+    glWidget->changeDestinationVisualState(VisualState::HIDDEN);
+}
+
+void MainWindow::receiveViewCommandShowSource(){
+    glWidget->changeSourceVisualState(VisualState::VISIBLE);
+}
+
+void MainWindow::receiveViewCommandShowDest(){
+    glWidget->changeDestinationVisualState(VisualState::VISIBLE);
+}
+
+void MainWindow::onNewScene(){
+    LoadDialog *dialog = new LoadDialog(this, glWidget.get());
     dialog->exec();
-    window->resetRetargetWidgets();*/
-    
-    std::cout << "Open Source Mesh" << std::endl;
+    qDebug() << "Receive Load Command";
+}
+
+void MainWindow::retargetAnim(){
+    //RetargetDialog *dialog = new RetargetDialog(this, engine);
+    //dialog->exec();
+    qDebug() << "Receive Retarget Command";
 }
 
 void MainWindow::run(){
 
     //renderloop
     qDebug("Entering RenderLoop");
-    glWidget->createEntities();
 
    while(running){
         timer->restart();

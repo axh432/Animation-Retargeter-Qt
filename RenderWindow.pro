@@ -31,7 +31,8 @@ SOURCES += \
     engine/material.cpp \
     engine/resourcemanager.cpp \
     lib/md5/glmesh.cpp \
-    engine/graphicscardmemorymanager.cpp
+    engine/graphicscardmemorymanager.cpp \
+    ui/loaddialog.cpp
 
 
 HEADERS += \
@@ -52,7 +53,11 @@ HEADERS += \
     engine/resourcemanager.h \
     lib/md5/glmesh.h \
     engine/graphicscardmemorymanager.h \
-    engine/gldata.h
+    engine/gldata.h \
+    engine/mapping.h \
+    ui/commands.h \
+    ui/loaddialog.h \
+    engine/entityresourcepaths.h
 
 
 RESOURCES += \

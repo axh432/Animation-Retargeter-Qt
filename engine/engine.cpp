@@ -12,6 +12,7 @@
 #include "lib/md5/md5factory.h"
 #include "lib/md5/md5.h"
 #include "engine/material.h"
+#include "engine/mapping.h"
 
 using std::unique_ptr;
 
@@ -36,45 +37,219 @@ void Engine::initializeGL()
 
 }
 
-void Engine::createEntities(){
-    /*loadMaterial(":/imp.mtr");
-    loadModel(":/imp.md5mesh", "imp");
-    loadAnim(":/evade_left.md5anim", "evade_left");*/
+QString Engine::findClosestToName(QString name, vector<QString>& potentialMatches){
 
-    loadMaterial(":/fatty.mtr");
-    loadModel(":/fatty.md5mesh", "fatty");
-    loadAnim(":/walk1.md5anim", "walk1");
+    for(int i = 0; i < potentialMatches.size(); i++){
+
+        if(name.compare(potentialMatches[i], Qt::CaseInsensitive) == 0){
+            return potentialMatches[i];
+        }
+
+    }
+
+    return "";
+
+}
+
+void Engine::printMappings(Skeleton* from, Skeleton* to){
+
+    vector<QString> fromNames;
+
+    vector<Joint>& fromJoints = from->getJoints();
+    vector<Joint>& toJoints = to->getJoints();
+
+    for(int i = 0; i < fromJoints.size(); i++){
+        fromNames.push_back(fromJoints[i].name);
+    }
+
+    for(int i = 0; i < toJoints.size(); i++){
+
+        QString toName = toJoints[i].name;
+
+        QString greatestMatch = findClosestToName(toName, fromNames);
+
+        qDebug() << "jointNameMapping.push_back({ " << toName << ", " << greatestMatch << " });";
+    }
+
+}
+
+vector<int> Engine::createMappings(Skeleton* from){
+
+    vector<StringMapping> jointNameMapping;
+    vector<int> indexMapping;
+
+    //toJoint, fromJoint
+    jointNameMapping.push_back({  "origin" ,  "origin"  });
+    jointNameMapping.push_back({  "Body" ,  "Body"  });
+    jointNameMapping.push_back({  "Hips" ,  "Hips"  });
+    jointNameMapping.push_back({  "Lupleg" ,  "Lupleg"  });
+    jointNameMapping.push_back({  "Lloleg" ,  "Lloleg"  });
+    jointNameMapping.push_back({  "Lankle_r" ,  "Lankle_r"  });
+    jointNameMapping.push_back({  "Lball_r" ,  "Lball_r"  });
+    jointNameMapping.push_back({  "Ltoe1_r" ,  ""  });
+    jointNameMapping.push_back({  "Ltip1_r" ,  ""  });
+    jointNameMapping.push_back({  "Ltoe2_r" ,  ""  });
+    jointNameMapping.push_back({  "Lknee" ,  "Lknee"  });
+    jointNameMapping.push_back({  "Rupleg" ,  "Rupleg"  });
+    jointNameMapping.push_back({  "Rloleg" ,  "Rloleg"  });
+    jointNameMapping.push_back({  "Rankle_r" ,  "Rankle_r"  });
+    jointNameMapping.push_back({  "Rball_r" ,  "Rball_r"  });
+    jointNameMapping.push_back({  "Rtoe1_r" ,  ""  });
+    jointNameMapping.push_back({  "Rtip1_r" ,  ""  });
+    jointNameMapping.push_back({  "Rtoe2_r" ,  ""  });
+    jointNameMapping.push_back({  "Rtip2_r" ,  ""  });
+    jointNameMapping.push_back({  "Rknee" ,  "Rknee"  });
+    jointNameMapping.push_back({  "Waist" ,  "waist"  });
+    jointNameMapping.push_back({  "Chest" ,  "chest"  });
+    jointNameMapping.push_back({  "Lrib" ,  ""  });
+    jointNameMapping.push_back({  "Rrib" ,  ""  });
+    jointNameMapping.push_back({  "Shoulders" ,  "shoulders"  });
+    jointNameMapping.push_back({  "Lshldr" ,  "Lshldr"  });
+    jointNameMapping.push_back({  "Luparm" ,  "Luparm"  });
+    jointNameMapping.push_back({  "Lloarm" ,  "Lloarm"  });
+    jointNameMapping.push_back({  "Lelbow" ,  ""  });
+    jointNameMapping.push_back({  "Lhand" ,  "Lhand"  });
+    jointNameMapping.push_back({  "Lindex_lo" ,  ""  });
+    jointNameMapping.push_back({  "Lindex_base" ,  ""  });
+    jointNameMapping.push_back({  "Lindex_mid" ,  ""  });
+    jointNameMapping.push_back({  "Lindex_tip" ,  ""  });
+    jointNameMapping.push_back({  "Lmissile" ,  ""  });
+    jointNameMapping.push_back({  "Lpinky_base" ,  ""  });
+    jointNameMapping.push_back({  "Lpinky_mid" ,  ""  });
+    jointNameMapping.push_back({  "Lpinky_tip" ,  ""  });
+    jointNameMapping.push_back({  "Lring_lo" ,  ""  });
+    jointNameMapping.push_back({  "Lring_base" ,  ""  });
+    jointNameMapping.push_back({  "Lring_mid" ,  ""  });
+    jointNameMapping.push_back({  "Lring_tip" ,  ""  });
+    jointNameMapping.push_back({  "Lthumb_lo" ,  ""  });
+    jointNameMapping.push_back({  "Lthumb_base" ,  ""  });
+    jointNameMapping.push_back({  "Lthumb_mid" ,  ""  });
+    jointNameMapping.push_back({  "Lthumb_tip" ,  ""  });
+    jointNameMapping.push_back({  "Neck" ,  ""  });
+    jointNameMapping.push_back({  "Head" ,  "head"  });
+    jointNameMapping.push_back({  "Jaw" ,  ""  });
+    jointNameMapping.push_back({  "camera" ,  ""  });
+    jointNameMapping.push_back({  "Rshldr" ,  "Rshldr"  });
+    jointNameMapping.push_back({  "Ruparm" ,  "Ruparm"  });
+    jointNameMapping.push_back({  "Rloarm" ,  "Rloarm"  });
+    jointNameMapping.push_back({  "Relbow" ,  ""  });
+    jointNameMapping.push_back({  "Rhand" ,  "Rhand"  });
+    jointNameMapping.push_back({  "Rindex_lo" ,  ""  });
+    jointNameMapping.push_back({  "Rindex_base" ,  ""  });
+    jointNameMapping.push_back({  "Rindex_mid" ,  ""  });
+    jointNameMapping.push_back({  "Rindex_tip" ,  ""  });
+    jointNameMapping.push_back({  "Rmissile" ,  ""  });
+    jointNameMapping.push_back({  "Rpinky_base" ,  ""  });
+    jointNameMapping.push_back({  "Rpinky_mid" ,  ""  });
+    jointNameMapping.push_back({  "Rpinky_tip" ,  ""  });
+    jointNameMapping.push_back({  "Rring_lo" ,  ""  });
+    jointNameMapping.push_back({  "Rring_base" ,  ""  });
+    jointNameMapping.push_back({  "Rring_mid" ,  ""  });
+    jointNameMapping.push_back({  "Rring_tip" ,  ""  });
+    jointNameMapping.push_back({  "Rthumb_lo" ,  ""  });
+    jointNameMapping.push_back({  "Rthumb_base" ,  ""  });
+    jointNameMapping.push_back({  "Rthumb_mid" ,  ""  });
+    jointNameMapping.push_back({  "Rthumb_tip" ,  ""  });
+
+    for(int i = 0; i < jointNameMapping.size(); i++){
+
+        QString& fromJointName = jointNameMapping[i].fromJointName;
+
+        if(fromJointName.isEmpty()){
+            indexMapping.push_back(-1);
+        }else{
+            indexMapping.push_back(from->getJointIndex(fromJointName));
+            qDebug() << fromJointName << " : " << from->getJointIndex(fromJointName);
+        }
+
+    }
+
+    return indexMapping;
+}
+
+void Engine::changeSourceAnimState(AnimState newState){
+    if(source.get()){
+        source->changeAnimState(newState);
+    }
+}
+
+void Engine::changeDestinationAnimState(AnimState newState){
+    if(destination.get()){
+        destination->changeAnimState(newState);
+    }
+}
+
+void Engine::changeSourceVisualState(VisualState newState){
+    if(source.get()){
+        source->changeVisualState(newState);
+    }
+}
+
+void Engine::changeDestinationVisualState(VisualState newState){
+    if(destination.get()){
+        destination->changeVisualState(newState);
+    }
+}
+
+void Engine::loadEntityResources(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths){
+
+    loadMaterial(sourcePaths->materialPath);
+    loadModel(sourcePaths->modelPath, sourcePaths->modelPath);
+    loadAnim(sourcePaths->animationPath, sourcePaths->animationPath);
+
+    loadMaterial(destinationPaths->materialPath);
+    loadModel(destinationPaths->modelPath,  destinationPaths->modelPath);
+
+}
+
+void Engine::createGraphicsCardSpaceForEntities(QString& sourceModelName, QString& destinationModelName){
+
+    GraphicsCardSpace spaceForSource = resourceManager->computeGraphicsCardSpaceForModel(sourceModelName);
+    GraphicsCardSpace spaceForDestination = resourceManager->computeGraphicsCardSpaceForModel(destinationModelName);
+    GraphicsCardSpace total = spaceForSource.add(spaceForDestination);
+
+    graphicsCardMemoryManager.reset(new GraphicsCardMemoryManager(total));
+}
+
+QMatrix4x4 Engine::createSourcePosition(){
 
     QMatrix4x4 matrix;
     matrix.translate(0.0f, -35.0f, -150.0f);
     matrix.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
 
+    return matrix;
+}
+
+QMatrix4x4 Engine::createDestinationPosition(){
+
     QMatrix4x4 matrix2;
     matrix2.translate(0.0f, -35.0f, -200.0f);
     matrix2.rotate(-90.0f, QVector3D(1.0, 0.0, 0.0));
 
-    GraphicsCardSpace spaceForFatty = resourceManager->computeGraphicsCardSpaceForModel("fatty");
-    //GraphicsCardSpace spaceForImp = resourceManager->computeGraphicsCardSpaceForModel("imp");
+    return matrix2;
+}
 
-    GraphicsCardSpace total = spaceForFatty.add(spaceForFatty);
+void Engine::setEntities(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths){
 
-    graphicsCardMemoryManager.reset(new GraphicsCardMemoryManager(total));
+    source.reset(new Entity(
+                     graphicsCardMemoryManager->createGLModel(sourcePaths->modelPath, resourceManager.get()),
+                     resourceManager->getAnim(sourcePaths->animationPath),
+                     createSourcePosition()));
 
-    entity.reset(new Entity(graphicsCardMemoryManager->createGLModel("fatty", resourceManager.get()), resourceManager->getAnim("walk1"), matrix));
-    entity2.reset(new Entity(graphicsCardMemoryManager->createGLModel("fatty", resourceManager.get()), resourceManager->getAnim("walk1"), matrix2));
-    //entity2.reset(new Entity(graphicsCardMemoryManager->createGLModel("imp", resourceManager.get()), resourceManager->getAnim("evade_left"), matrix2));
+    destination.reset(new Entity(
+                          graphicsCardMemoryManager->createGLModel(destinationPaths->modelPath, resourceManager.get()),
+                          createDestinationPosition()));
 
-    Skeleton* fattyBindPose = resourceManager->getModel("fatty")->bindPose.get();
-    Skeleton* frame10 = &(entity->getAnim()->skeletons[10]);
 
-    fattyBindPose->recomputeLocalSpace();
-    vector<QQuaternion> rotations = Skeleton::getRotationalDifference(fattyBindPose, frame10);
-    fattyBindPose->applyRotations(rotations);
-    fattyBindPose->recomputeObjectSpace();
+}
 
-    //entity->freezeWithSkeleton();
-    entity->freezeWithSkeleton(fattyBindPose);
-    entity2->freezeWithSkeleton(frame10);
+void Engine::createEntities(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths){
+
+    loadEntityResources(sourcePaths, destinationPaths);
+
+    createGraphicsCardSpaceForEntities(sourcePaths->modelPath, destinationPaths->modelPath);
+
+    setEntities(sourcePaths, destinationPaths);
 }
 
 void Engine::loadResource(QString resourcePath, QString schemaPath, DataBuffer* buffer){
@@ -128,17 +303,17 @@ void Engine::loadMaterial(QString materialPath){
 
     loadResource(materialPath, ":/mtr.schema", &buffer);
 
-    resourceManager->storeMaterial(buffer);
+    resourceManager->storeMaterial(buffer, materialPath);
 }
 
 void Engine::updateEntities(double delta){
 
-    if(entity.get()){
-        entity->update(delta);
+    if(source.get()){
+        source->update(delta);
     }
 
-    if(entity2.get()){
-        entity2->update(delta);
+    if(destination.get()){
+        destination->update(delta);
     }
 
 }
@@ -192,15 +367,15 @@ void Engine::handleKeyEvent(QKeyEvent *e){
 
 Engine::~Engine()
 {
-    entity.reset(nullptr);
-    entity2.reset(nullptr);
+    source.reset(nullptr);
+    destination.reset(nullptr);
     camera.reset(nullptr);
     std::cout << "Deleting engine" << std::endl;
 }
 
 void Engine::updateWorld(qint64 delta){
 
-    qDebug() << "qint64 delta: " << delta;
+    //qDebug() << "qint64 delta: " << delta;
 
     double deltaAsDouble = (double) delta;
 
@@ -218,13 +393,12 @@ void Engine::render()
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if(entity.get()){
-        //entity->getModel()->checkGLValidity();
-        entity->render(camera->getViewMatrix());
+    if(source.get()){
+        source->render(camera->getViewMatrix());
     }
 
-    if(entity2.get()){
-        entity2->render(camera->getViewMatrix());
+    if(destination.get()){
+        destination->render(camera->getViewMatrix());
     }
 
 }

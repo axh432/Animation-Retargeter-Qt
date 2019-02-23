@@ -46,7 +46,7 @@ std::unique_ptr<QOpenGLTexture> ResourceManager::loadTexture(QString texturePath
     return texture;
 }
 
-void ResourceManager::storeMaterial(DataBuffer& buffer){
+void ResourceManager::storeMaterial(DataBuffer& buffer, QString materialPath){
 
     QString name = buffer.popString();
     QString alias = buffer.popString();
@@ -64,27 +64,42 @@ void ResourceManager::storeMaterial(DataBuffer& buffer){
     std::unique_ptr<QOpenGLTexture> height(nullptr);
     std::unique_ptr<QOpenGLTexture> specular(nullptr);
 
+    //get the base path
+    QStringList pathAsList = materialPath.split("/");
+    QString materialFileName = pathAsList.at(pathAsList.length() -1);
+    QString directory = materialPath.replace(materialFileName, "");
+    qDebug() << "Directory: " << directory;
 
     if(!vertshader.isEmpty() && !fragshader.isEmpty()){
-        shader = std::move(createShaderProgram(vertshader, fragshader));
+
+        QString vertShaderFullPath = directory + vertshader.replace(":/", "");
+        QString fragShaderFullPath = directory + fragshader.replace(":/", "");
+
+        qDebug() << "shaderpath: " + vertShaderFullPath;
+
+        shader = std::move(createShaderProgram(vertShaderFullPath, fragShaderFullPath));
     }else{
         throw runtime_error("Error: material definition does not contain paths to shader source");
     }
 
     if(!diffusePath.isEmpty()){
-        diffuse = std::move(loadTexture(diffusePath));
+        QString diffuseFullPath = directory + diffusePath.replace(":/", "");
+        diffuse = std::move(loadTexture(diffuseFullPath));
     }
 
     if(!localPath.isEmpty()){
-        local = std::move(loadTexture(localPath));
+        QString localFullPath = directory + localPath.replace(":/", "");
+        local = std::move(loadTexture(localFullPath));
     }
 
     if(!heightPath.isEmpty()){
-        height = std::move(loadTexture(heightPath));
+        QString heightFullPath = directory + heightPath.replace(":/", "");
+        height = std::move(loadTexture(heightFullPath));
     }
 
     if(!specularPath.isEmpty()){
-        specular = std::move(loadTexture(specularPath));
+        QString specularFullPath = directory + specularPath.replace(":/", "");
+        specular = std::move(loadTexture(specularFullPath));
     }
 
     materialStorage.emplace_back(name, alias, type, std::move(shader), std::move(diffuse), std::move(local), std::move(height), std::move(specular));

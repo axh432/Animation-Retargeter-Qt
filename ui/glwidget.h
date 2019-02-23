@@ -6,6 +6,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
+#include "commands.h"
 #include "engine/engine.h"
 #include <QTime>
 #include <memory>
@@ -26,7 +27,11 @@ public:
     QSize minimumSizeHint() const Q_DECL_OVERRIDE;
     QSize sizeHint() const Q_DECL_OVERRIDE;
     void handleKeyEvent(QKeyEvent *e);
-    void createEntities();
+    void loadEntities(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths);
+    void changeSourceAnimState(AnimState newState);
+    void changeDestinationAnimState(AnimState newState);
+    void changeSourceVisualState(VisualState newState);
+    void changeDestinationVisualState(VisualState newState);
 
 protected:
     void initializeGL() Q_DECL_OVERRIDE;

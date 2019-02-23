@@ -118,13 +118,13 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
 
     shader->bind();
 
-    qDebug() << "is shader linked?: " << shader->isLinked();
+    //qDebug() << "is shader linked?: " << shader->isLinked();
 
     diffuse->bind();
 
-    qDebug() << "is diffuse texture created?: " << diffuse->isCreated();
-    qDebug() << "is diffuse texture bound?: " << diffuse->isBound();
-    qDebug() << "is diffuse texture storage allocated?: " << diffuse->isStorageAllocated();
+    //qDebug() << "is diffuse texture created?: " << diffuse->isCreated();
+    //qDebug() << "is diffuse texture bound?: " << diffuse->isBound();
+    //qDebug() << "is diffuse texture storage allocated?: " << diffuse->isStorageAllocated();
 
     shader->setUniformValue("mvp_matrix", mvp_matrix);
 
@@ -133,14 +133,14 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
     // Tell OpenGL which VBOs to use
     indexBuffer->bind();
 
-    qDebug() << "indexBuffer is created: " << indexBuffer->isCreated();
-    qDebug() << "indexBuffer size: " << indexBuffer->size();
+    //qDebug() << "indexBuffer is created: " << indexBuffer->isCreated();
+    //qDebug() << "indexBuffer size: " << indexBuffer->size();
 
-    qDebug() << "vertexBuffer is created: " << vertexBuffer->isCreated();
-    qDebug() << "vertexBuffer size: " << vertexBuffer->size();
+    //qDebug() << "vertexBuffer is created: " << vertexBuffer->isCreated();
+    //qDebug() << "vertexBuffer size: " << vertexBuffer->size();
 
-    qDebug() << "textureBuffer is created: " << textureBuffer->isCreated();
-    qDebug() << "textureBuffer size: " << textureBuffer->size();
+    //qDebug() << "textureBuffer is created: " << textureBuffer->isCreated();
+    //qDebug() << "textureBuffer size: " << textureBuffer->size();
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
     vertexBuffer->bind();
@@ -154,7 +154,7 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
     shader->enableAttributeArray(texcoordLocation);
     shader->setAttributeBuffer(texcoordLocation, GL_FLOAT, glData->texturePtr, 2, 0);
 
-    qDebug() << "numIndices: " << glData->numIndices;
+    //qDebug() << "numIndices: " << glData->numIndices;
 
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, glData->numIndices, GL_UNSIGNED_INT, (void*) glData->indicesPtr);
@@ -169,7 +169,10 @@ void GLMesh::render(QMatrix4x4& mvp_matrix){
 
 
 //GLModel
-GLModel::GLModel(std::vector<GLMesh> meshes): meshes(std::move(meshes)){/*empty*/}
+GLModel::GLModel(std::vector<GLMesh> meshes, Skeleton* bindPose):
+    meshes(std::move(meshes)),
+    bindPose(bindPose)
+{/*empty*/}
 
 /*void GLModel::checkGLValidity(){
 

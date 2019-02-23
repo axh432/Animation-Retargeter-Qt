@@ -42,7 +42,7 @@ public:
 
     void storeAnim( DataBuffer* buffer, QString name );
 
-    void storeMaterial(DataBuffer& buffer);
+    void storeMaterial(DataBuffer& buffer, QString materialPath);
 
     GraphicsCardSpace computeGraphicsCardSpaceForModel( QString modelName );
 

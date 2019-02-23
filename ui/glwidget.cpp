@@ -32,22 +32,39 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initializeGL()
 {
-    qDebug() << "InitializeGL() called";
     initializeOpenGLFunctions();
     engine.reset(new Engine());
 }
 
-void GLWidget::createEntities(){
+void GLWidget::updateWorld(qint64 delta){
     makeCurrent();
-    engine->createEntities();
+    engine->updateWorld(delta);
     doneCurrent();
 }
 
-void GLWidget::updateWorld(qint64 delta){
+void GLWidget::loadEntities(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths){
     makeCurrent();
-    qDebug() << "updateWorld() called";
-    engine->updateWorld(delta);
+    engine->createEntities(sourcePaths, destinationPaths);
     doneCurrent();
+}
+
+void GLWidget::changeSourceAnimState(AnimState newState) {
+    makeCurrent();
+    engine->changeSourceAnimState(newState);
+    doneCurrent();
+}
+void GLWidget::changeDestinationAnimState(AnimState newState) {
+    makeCurrent();
+    engine->changeDestinationAnimState(newState);
+    doneCurrent();
+}
+
+void GLWidget::changeSourceVisualState(VisualState newState){
+    engine->changeSourceVisualState(newState);
+}
+
+void GLWidget::changeDestinationVisualState(VisualState newState){
+    engine->changeDestinationVisualState(newState);
 }
 
 void GLWidget::handleKeyEvent(QKeyEvent *e){
@@ -56,7 +73,7 @@ void GLWidget::handleKeyEvent(QKeyEvent *e){
 
 void GLWidget::paintGL()
 {
-    qDebug() << "paintGL() called";
+    //qDebug() << "paintGL() called";
     engine->render();
 }
 

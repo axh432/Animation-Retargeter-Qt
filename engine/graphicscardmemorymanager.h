@@ -8,6 +8,7 @@
 #include "engine/resourcemanager.h"
 
 using std::vector;
+using std::shared_ptr;
 
 class GraphicsCardMemoryManager
 {
@@ -16,7 +17,7 @@ public:
     GraphicsCardMemoryManager(GraphicsCardSpace& space);
     ~GraphicsCardMemoryManager();
     unique_ptr<GLData> storeMeshOnGraphicsCard(Mesh* mesh, Skeleton* skeleton);
-    unique_ptr<GLModel> createGLModel(QString modelName, ResourceManager* resourceManager);
+    shared_ptr<GLModel> createGLModel(QString modelName, ResourceManager* resourceManager);
 
 private:
     quintptr storeTextureCoordsOnGraphicsCard(vector<GLfloat> texCoords);
