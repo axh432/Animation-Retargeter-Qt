@@ -59,6 +59,10 @@ void GLWidget::changeDestinationAnimState(AnimState newState) {
     doneCurrent();
 }
 
+QPair<Skeleton*, Skeleton*> GLWidget::getSkeletonsForRetargeting(){
+    return engine->getSkeletonsForRetargeting();
+}
+
 void GLWidget::changeSourceVisualState(VisualState newState){
     engine->changeSourceVisualState(newState);
 }

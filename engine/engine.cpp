@@ -3,6 +3,7 @@
 #include <QMouseEvent>
 #include <QOpenGLFunctions>
 #include <QKeyEvent>
+#include <QPair>
 #include <math.h>
 #include <memory>
 #include <iostream>
@@ -48,6 +49,16 @@ QString Engine::findClosestToName(QString name, vector<QString>& potentialMatche
     }
 
     return "";
+
+}
+
+QPair<Skeleton*, Skeleton*> Engine::getSkeletonsForRetargeting(){
+
+    if(source && destination){
+        return QPair<Skeleton*, Skeleton*>(source->getModel()->getBindPose(), destination->getModel()->getBindPose());
+    }else{
+        return QPair<Skeleton*, Skeleton*>(nullptr, nullptr);
+    }
 
 }
 

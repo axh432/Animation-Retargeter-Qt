@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "glwidget.h"
 #include "loaddialog.h"
+#include "retargetdialog.h"
 #include <QMenuBar>
 #include <QMenu>
 #include <QMessageBox>
@@ -135,8 +136,16 @@ void MainWindow::onNewScene(){
 }
 
 void MainWindow::retargetAnim(){
-    //RetargetDialog *dialog = new RetargetDialog(this, engine);
-    //dialog->exec();
+
+    QPair<Skeleton*, Skeleton*> skeletons = glWidget->getSkeletonsForRetargeting();
+
+    if(skeletons.first && skeletons.second){
+        RetargetDialog *dialog = new RetargetDialog(this, skeletons);
+        dialog->exec();
+    }else{
+        QMessageBox::warning(this, tr("Nothing to Retarget: "), "You have not loaded a scene and so cannot retarget anything.", QMessageBox::Ok);
+    }
+
     qDebug() << "Receive Retarget Command";
 }
 

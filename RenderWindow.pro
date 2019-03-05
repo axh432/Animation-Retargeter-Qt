@@ -32,7 +32,8 @@ SOURCES += \
     engine/resourcemanager.cpp \
     lib/md5/glmesh.cpp \
     engine/graphicscardmemorymanager.cpp \
-    ui/loaddialog.cpp
+    ui/loaddialog.cpp \
+    ui/retargetdialog.cpp
 
 
 HEADERS += \
@@ -57,7 +58,8 @@ HEADERS += \
     engine/mapping.h \
     ui/commands.h \
     ui/loaddialog.h \
-    engine/entityresourcepaths.h
+    engine/entityresourcepaths.h \
+    ui/retargetdialog.h
 
 
 RESOURCES += \
