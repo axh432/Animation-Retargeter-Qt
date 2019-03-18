@@ -33,6 +33,7 @@ public:
     void changeSourceVisualState(VisualState newState);
     void changeDestinationVisualState(VisualState newState);
     QPair<Skeleton*, Skeleton*> getSkeletonsForRetargeting();
+    void retargetAnimation(vector<int> jointMappings);
 
 protected:
     void initializeGL() Q_DECL_OVERRIDE;

@@ -75,6 +75,10 @@ void GLWidget::handleKeyEvent(QKeyEvent *e){
     engine->handleKeyEvent(e);
 }
 
+void GLWidget::retargetAnimation(vector<int> jointMappings){
+
+}
+
 void GLWidget::paintGL()
 {
     //qDebug() << "paintGL() called";

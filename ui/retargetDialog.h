@@ -22,7 +22,7 @@ class RetargetDialog : public QDialog
     Q_OBJECT
 
 public:
-    RetargetDialog(QWidget *parent, QPair<Skeleton*, Skeleton*> skeletons);
+    RetargetDialog(QWidget *parent, QPair<Skeleton*, Skeleton*> skeletons, GLWidget *glWidget);
 
 private slots:
     //void refresh();
@@ -39,6 +39,7 @@ private:
     QVector<QComboBox *> comboBoxes;
     QVector<QLabel *> labels;
     QVector<QCheckBox *> checkBoxes;
+    GLWidget *glWidget;
 
 };
 

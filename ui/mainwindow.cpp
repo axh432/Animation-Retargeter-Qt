@@ -60,7 +60,6 @@ MainWindow::MainWindow(QApplication * newApp):
     connect(hideSource, SIGNAL(triggered()), this, SLOT(receiveViewCommandShowSource()));
     connect(hideDest, SIGNAL(triggered()), this, SLOT(receiveViewCommandShowDest()));
 
-
     animMenu->addAction(playSource);
     animMenu->addAction(pauseSource);
     animMenu->addAction(bindSource);
@@ -140,7 +139,7 @@ void MainWindow::retargetAnim(){
     QPair<Skeleton*, Skeleton*> skeletons = glWidget->getSkeletonsForRetargeting();
 
     if(skeletons.first && skeletons.second){
-        RetargetDialog *dialog = new RetargetDialog(this, skeletons);
+        RetargetDialog *dialog = new RetargetDialog(this, skeletons, glWidget.get());
         dialog->exec();
     }else{
         QMessageBox::warning(this, tr("Nothing to Retarget: "), "You have not loaded a scene and so cannot retarget anything.", QMessageBox::Ok);

@@ -5,8 +5,8 @@
 using std::cout;
 using std::endl;
 
-RetargetDialog::RetargetDialog(QWidget *parent, QPair<Skeleton*, Skeleton*> skeletons)
-    : QDialog(parent)
+RetargetDialog::RetargetDialog(QWidget *parent, QPair<Skeleton*, Skeleton*> skeletons, GLWidget *glWidget)
+    : QDialog(parent), glWidget(glWidget)
 {
 
     QScrollArea *scroll = createScrollArea();
@@ -120,11 +120,16 @@ QGridLayout* RetargetDialog::createMainLayout(QWidget* viewport){
 }
 
 void RetargetDialog::updateMap(){
-    cout << "updateMap" << endl;
+    qDebug() << "updateMap";
+
+    vector<int> jointMappings;
 
     for(int i = 0; i < labels.size(); i++){
-
+        jointMappings.push_back(comboBoxes[i]->currentIndex() -1);
         qDebug() << labels[i]->text() << " " << comboBoxes[i]->currentText();
     }
+
+    glWidget->retargetAnimation(jointMappings);
+
     done(1);
 }
