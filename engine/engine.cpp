@@ -62,6 +62,27 @@ QPair<Skeleton*, Skeleton*> Engine::getSkeletonsForRetargeting(){
 
 }
 
+void Engine::retargetAnimation(vector<int> jointMappings){
+
+    Skeleton* sourceBindPose = source->getModel()->getBindPose();
+    Skeleton* destBindPose = destination->getModel()->getBindPose();
+
+
+    for(int i = 0; i < jointMappings.size(); i++){
+
+        int destJointIndex = jointMappings[i];
+        QString destJointName = "None";
+
+        if(destJointIndex != -1){
+            destJointName = destBindPose->getJoints()[destJointIndex].name;
+        }
+
+        qDebug() << sourceBindPose->getJoints()[i].name << " : " << destJointName;
+
+    }
+
+}
+
 void Engine::printMappings(Skeleton* from, Skeleton* to){
 
     vector<QString> fromNames;
