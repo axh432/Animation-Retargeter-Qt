@@ -142,9 +142,9 @@ void Entity::render(QMatrix4x4& view){
 
     model->render(viewPosition);
 
-    if(showBones){
-        renderSkeleton(viewPosition, 7);
-    }
+    //if(showBones){
+        renderSkeleton(viewPosition, model->getBindPose()->getJoints().size());
+    //}
 }
 
 vector<GLfloat> Entity::vectorToGLFloats(QVector3D vector3d){
@@ -216,6 +216,20 @@ void Entity::hide(){
 
     currentVisualState = VisualState::HIDDEN;
 }
+
+void Entity::freezeWithSkeleton(Skeleton* retargetedSkeleton){
+    currentSkeleton = retargetedSkeleton;
+    model->update(currentSkeleton);
+    frozen = true;
+
+    millisecondsPast = 0.0f;
+    interpolation = 0.0f;
+    currentFrame = 0;
+    nextFrame = 0;
+
+    currentAnimState = AnimState::PAUSE;
+}
+
 
 void Entity::show(){
     hidden = false;

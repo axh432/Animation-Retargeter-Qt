@@ -70,19 +70,19 @@ void Skeleton::applyModifications(vector<JointModification>& jointMods){
     recomputeObjectSpace();
 }
 
-vector<JointModification> Skeleton::getDifferences(Skeleton* from, Skeleton* to){
+vector<JointModification> Skeleton::getDifferences(Skeleton* source, Skeleton* destination){
 
-    vector<Joint>& fromJoints = from->getJoints();
-    vector<Joint>& toJoints = to->getJoints();
+    vector<Joint>& sourceJoints = source->getJoints();
+    vector<Joint>& destJoints = destination->getJoints();
 
     vector<JointModification> differences;
 
-    int numJoints = fromJoints.size();
+    int numJoints = sourceJoints.size();
 
     for (int i = 0; i < numJoints; i++){
 
-        Joint& fromJoint = fromJoints[i];
-        Joint& toJoint = toJoints[i];
+        Joint& fromJoint = sourceJoints[i];
+        Joint& toJoint = destJoints[i];
 
         differences.emplace_back(getRotationalDifference(fromJoint, toJoint), getTranslationalDifference(fromJoint, toJoint));
 
@@ -105,7 +105,7 @@ QQuaternion Skeleton::getRotationalDifference(Joint& from, Joint& to){
     QQuaternion& fromOrient = from.localOrient;
     QQuaternion& toOrient = to.localOrient;
 
-    QQuaternion difference = toOrient * fromOrient.inverted();
+    QQuaternion difference = fromOrient * toOrient.inverted();
     difference.normalize();
 
     return difference;

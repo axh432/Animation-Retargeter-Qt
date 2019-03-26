@@ -49,10 +49,6 @@ private:
     unique_ptr<QOpenGLShaderProgram> createShaderProgram(QString vertexShaderPath, QString fragmentShaderPath);
     unique_ptr<QOpenGLTexture> loadTexture(QString texturePath);
     void createMaterial(DataBuffer& buffer);
-    void createStringMapping();
-    void printMappings(Skeleton* from, Skeleton* to);
-    vector<int> createMappings(Skeleton* from);
-    QString findClosestToName(QString name, vector<QString>& potentialMatches);
     void loadEntityResources(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths);
     void createGraphicsCardSpaceForEntities(QString& sourceModelName, QString& destinationModelName);
     void setEntities(std::shared_ptr<EntityResourcePaths> sourcePaths, std::shared_ptr<EntityResourcePaths> destinationPaths);
@@ -62,7 +58,7 @@ private:
 private:
     unique_ptr<Entity> source;
     unique_ptr<Entity> destination;
-    unique_ptr<Skeleton> copy;
+    unique_ptr<Skeleton> destRetargetSkel;
     unique_ptr<Camera> camera;
     unique_ptr<ResourceManager> resourceManager;
     unique_ptr<GraphicsCardMemoryManager> graphicsCardMemoryManager;

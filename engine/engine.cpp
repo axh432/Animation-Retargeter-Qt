@@ -38,20 +38,6 @@ void Engine::initializeGL()
 
 }
 
-QString Engine::findClosestToName(QString name, vector<QString>& potentialMatches){
-
-    for(int i = 0; i < potentialMatches.size(); i++){
-
-        if(name.compare(potentialMatches[i], Qt::CaseInsensitive) == 0){
-            return potentialMatches[i];
-        }
-
-    }
-
-    return "";
-
-}
-
 QPair<Skeleton*, Skeleton*> Engine::getSkeletonsForRetargeting(){
 
     if(source && destination){
@@ -81,122 +67,20 @@ void Engine::retargetAnimation(vector<int> jointMappings){
 
     }
 
-}
+    Skeleton* sourceRetargetSkel = &source->getAnim()->skeletons[10];
 
-void Engine::printMappings(Skeleton* from, Skeleton* to){
+    destRetargetSkel.reset(new Skeleton(destBindPose));
 
-    vector<QString> fromNames;
+    destRetargetSkel->recomputeLocalSpace();
 
-    vector<Joint>& fromJoints = from->getJoints();
-    vector<Joint>& toJoints = to->getJoints();
+    vector<JointModification> differences = Skeleton::getDifferences(sourceRetargetSkel, destRetargetSkel.get());
 
-    for(int i = 0; i < fromJoints.size(); i++){
-        fromNames.push_back(fromJoints[i].name);
-    }
+    destRetargetSkel->applyModificationsDifferentSkeleton(differences, jointMappings);
 
-    for(int i = 0; i < toJoints.size(); i++){
+    source->freezeWithSkeleton(sourceRetargetSkel);
 
-        QString toName = toJoints[i].name;
+    destination->freezeWithSkeleton(destRetargetSkel.get());
 
-        QString greatestMatch = findClosestToName(toName, fromNames);
-
-        qDebug() << "jointNameMapping.push_back({ " << toName << ", " << greatestMatch << " });";
-    }
-
-}
-
-vector<int> Engine::createMappings(Skeleton* from){
-
-    vector<StringMapping> jointNameMapping;
-    vector<int> indexMapping;
-
-    //toJoint, fromJoint
-    jointNameMapping.push_back({  "origin" ,  "origin"  });
-    jointNameMapping.push_back({  "Body" ,  "Body"  });
-    jointNameMapping.push_back({  "Hips" ,  "Hips"  });
-    jointNameMapping.push_back({  "Lupleg" ,  "Lupleg"  });
-    jointNameMapping.push_back({  "Lloleg" ,  "Lloleg"  });
-    jointNameMapping.push_back({  "Lankle_r" ,  "Lankle_r"  });
-    jointNameMapping.push_back({  "Lball_r" ,  "Lball_r"  });
-    jointNameMapping.push_back({  "Ltoe1_r" ,  ""  });
-    jointNameMapping.push_back({  "Ltip1_r" ,  ""  });
-    jointNameMapping.push_back({  "Ltoe2_r" ,  ""  });
-    jointNameMapping.push_back({  "Lknee" ,  "Lknee"  });
-    jointNameMapping.push_back({  "Rupleg" ,  "Rupleg"  });
-    jointNameMapping.push_back({  "Rloleg" ,  "Rloleg"  });
-    jointNameMapping.push_back({  "Rankle_r" ,  "Rankle_r"  });
-    jointNameMapping.push_back({  "Rball_r" ,  "Rball_r"  });
-    jointNameMapping.push_back({  "Rtoe1_r" ,  ""  });
-    jointNameMapping.push_back({  "Rtip1_r" ,  ""  });
-    jointNameMapping.push_back({  "Rtoe2_r" ,  ""  });
-    jointNameMapping.push_back({  "Rtip2_r" ,  ""  });
-    jointNameMapping.push_back({  "Rknee" ,  "Rknee"  });
-    jointNameMapping.push_back({  "Waist" ,  "waist"  });
-    jointNameMapping.push_back({  "Chest" ,  "chest"  });
-    jointNameMapping.push_back({  "Lrib" ,  ""  });
-    jointNameMapping.push_back({  "Rrib" ,  ""  });
-    jointNameMapping.push_back({  "Shoulders" ,  "shoulders"  });
-    jointNameMapping.push_back({  "Lshldr" ,  "Lshldr"  });
-    jointNameMapping.push_back({  "Luparm" ,  "Luparm"  });
-    jointNameMapping.push_back({  "Lloarm" ,  "Lloarm"  });
-    jointNameMapping.push_back({  "Lelbow" ,  ""  });
-    jointNameMapping.push_back({  "Lhand" ,  "Lhand"  });
-    jointNameMapping.push_back({  "Lindex_lo" ,  ""  });
-    jointNameMapping.push_back({  "Lindex_base" ,  ""  });
-    jointNameMapping.push_back({  "Lindex_mid" ,  ""  });
-    jointNameMapping.push_back({  "Lindex_tip" ,  ""  });
-    jointNameMapping.push_back({  "Lmissile" ,  ""  });
-    jointNameMapping.push_back({  "Lpinky_base" ,  ""  });
-    jointNameMapping.push_back({  "Lpinky_mid" ,  ""  });
-    jointNameMapping.push_back({  "Lpinky_tip" ,  ""  });
-    jointNameMapping.push_back({  "Lring_lo" ,  ""  });
-    jointNameMapping.push_back({  "Lring_base" ,  ""  });
-    jointNameMapping.push_back({  "Lring_mid" ,  ""  });
-    jointNameMapping.push_back({  "Lring_tip" ,  ""  });
-    jointNameMapping.push_back({  "Lthumb_lo" ,  ""  });
-    jointNameMapping.push_back({  "Lthumb_base" ,  ""  });
-    jointNameMapping.push_back({  "Lthumb_mid" ,  ""  });
-    jointNameMapping.push_back({  "Lthumb_tip" ,  ""  });
-    jointNameMapping.push_back({  "Neck" ,  ""  });
-    jointNameMapping.push_back({  "Head" ,  "head"  });
-    jointNameMapping.push_back({  "Jaw" ,  ""  });
-    jointNameMapping.push_back({  "camera" ,  ""  });
-    jointNameMapping.push_back({  "Rshldr" ,  "Rshldr"  });
-    jointNameMapping.push_back({  "Ruparm" ,  "Ruparm"  });
-    jointNameMapping.push_back({  "Rloarm" ,  "Rloarm"  });
-    jointNameMapping.push_back({  "Relbow" ,  ""  });
-    jointNameMapping.push_back({  "Rhand" ,  "Rhand"  });
-    jointNameMapping.push_back({  "Rindex_lo" ,  ""  });
-    jointNameMapping.push_back({  "Rindex_base" ,  ""  });
-    jointNameMapping.push_back({  "Rindex_mid" ,  ""  });
-    jointNameMapping.push_back({  "Rindex_tip" ,  ""  });
-    jointNameMapping.push_back({  "Rmissile" ,  ""  });
-    jointNameMapping.push_back({  "Rpinky_base" ,  ""  });
-    jointNameMapping.push_back({  "Rpinky_mid" ,  ""  });
-    jointNameMapping.push_back({  "Rpinky_tip" ,  ""  });
-    jointNameMapping.push_back({  "Rring_lo" ,  ""  });
-    jointNameMapping.push_back({  "Rring_base" ,  ""  });
-    jointNameMapping.push_back({  "Rring_mid" ,  ""  });
-    jointNameMapping.push_back({  "Rring_tip" ,  ""  });
-    jointNameMapping.push_back({  "Rthumb_lo" ,  ""  });
-    jointNameMapping.push_back({  "Rthumb_base" ,  ""  });
-    jointNameMapping.push_back({  "Rthumb_mid" ,  ""  });
-    jointNameMapping.push_back({  "Rthumb_tip" ,  ""  });
-
-    for(int i = 0; i < jointNameMapping.size(); i++){
-
-        QString& fromJointName = jointNameMapping[i].fromJointName;
-
-        if(fromJointName.isEmpty()){
-            indexMapping.push_back(-1);
-        }else{
-            indexMapping.push_back(from->getJointIndex(fromJointName));
-            qDebug() << fromJointName << " : " << from->getJointIndex(fromJointName);
-        }
-
-    }
-
-    return indexMapping;
 }
 
 void Engine::changeSourceAnimState(AnimState newState){
@@ -406,9 +290,6 @@ Engine::~Engine()
 }
 
 void Engine::updateWorld(qint64 delta){
-
-    //qDebug() << "qint64 delta: " << delta;
-
     double deltaAsDouble = (double) delta;
 
     updateEntities(deltaAsDouble);

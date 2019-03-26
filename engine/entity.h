@@ -48,6 +48,7 @@ public:
     void update(double delta);
     inline GLModel* getModel(){ return model.get(); }
     inline Anim* getAnim(){ return anim; }
+    void freezeWithSkeleton(Skeleton* retargetedSkeleton);
     inline void setPositionOrientation(QMatrix4x4 posOrient){ this->positionOrientation = posOrient; }
     inline QMatrix4x4 getPositionOrientation(){ return positionOrientation; }
     void changeAnimState(AnimState newAnimState);

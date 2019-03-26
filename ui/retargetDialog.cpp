@@ -79,7 +79,12 @@ void RetargetDialog::createComboBoxes(Skeleton* source, QGridLayout* mainLayout,
     QPushButton *doneButton = new QPushButton("Done", this);
     mainLayout->addWidget(doneButton, joints.size() + 1, 0);
 
+    QPushButton *clearButton = new QPushButton("Clear", this);
+    mainLayout->addWidget(doneButton, joints.size() + 1, 1);
+
+
     connect(doneButton, SIGNAL(clicked()), this, SLOT(updateMap()));
+    connect(clearButton, SIGNAL(clicked()), this, SLOT(clearWidgets()));
 }
 
 QStringList RetargetDialog::createDestinationBoxItems(Skeleton* skeleton){
@@ -132,4 +137,11 @@ void RetargetDialog::updateMap(){
     glWidget->retargetAnimation(jointMappings);
 
     done(1);
+}
+
+void RetargetDialog::clearWidgets(){
+
+    for(int i = 0; i < labels.size(); i++){
+        comboBoxes[i]->setCurrentIndex(0);
+    }
 }

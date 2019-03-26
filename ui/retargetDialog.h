@@ -25,8 +25,8 @@ public:
     RetargetDialog(QWidget *parent, QPair<Skeleton*, Skeleton*> skeletons, GLWidget *glWidget);
 
 private slots:
-    //void refresh();
     void updateMap();
+    void clearWidgets();
 
 private:
     QGridLayout* setupMainLayout();
